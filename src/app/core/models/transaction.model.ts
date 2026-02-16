@@ -5,8 +5,7 @@ export interface Transaction {
     transactionType: 'INCOME' | 'EXPENSE';
     categoryId: number;
     categoryName: string;
-    date: string;
-    paymentMethod: string;
+    createdAt: string; // LocalDateTime
 }
 
 export interface TransactionRequest {
@@ -14,8 +13,6 @@ export interface TransactionRequest {
     total: number;
     transactionType: 'INCOME' | 'EXPENSE';
     categoryId: number;
-    date: string;
-    paymentMethod: string;
 }
 
 export interface PageResponse<T> {

@@ -2,10 +2,13 @@ import { Component, model, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../features/auth/services/auth.service';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ConfirmationService } from 'primeng/api';
 
 @Component({
   selector: 'app-sidebar',
-  imports: [CommonModule, RouterLink, RouterLinkActive],
+  imports: [CommonModule, RouterLink, RouterLinkActive, ConfirmDialogModule],
+  providers: [ConfirmationService],
   template: `
     <aside class="sidebar" [class.collapsed]="collapsed()">
       <div class="sidebar-header">
@@ -21,11 +24,11 @@ import { AuthService } from '../features/auth/services/auth.service';
           @if (!collapsed()) { <span>Dashboard</span> }
         </a>
         <a routerLink="/incomes" routerLinkActive="active" class="nav-item">
-          <i class="pi pi-arrow-down-left" style="color: var(--p-green-500)"></i>
+          <i class="pi pi-arrow-down-left"></i>
           @if (!collapsed()) { <span>Ingresos</span> }
         </a>
         <a routerLink="/expenses" routerLinkActive="active" class="nav-item">
-          <i class="pi pi-arrow-up-right" style="color: var(--p-red-500)"></i>
+          <i class="pi pi-arrow-up-right"></i>
           @if (!collapsed()) { <span>Gastos</span> }
         </a>
         <a routerLink="/categories" routerLinkActive="active" class="nav-item">
@@ -52,48 +55,53 @@ import { AuthService } from '../features/auth/services/auth.service';
           @if (!collapsed()) { <span>Cerrar Sesión</span> }
         </a>
       </div>
+
+      <p-confirmDialog 
+        styleClass="mm-dialog" 
+        [closable]="false" 
+      />
     </aside>
   `,
   styles: [`
     .sidebar {
       position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
+      top: 1rem;
+      left: 1rem;
+      bottom: 1rem;
       width: 260px;
-      background: var(--p-surface-card);
-      border-right: 1px solid var(--p-surface-border);
+      background: #ffffff;
+      border: 1px solid #f1f5f9;
+      border-radius: 24px;
       display: flex;
       flex-direction: column;
-      transition: width 0.3s ease;
-      z-index: 100;
+      transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 1000;
       overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
     }
 
     .sidebar.collapsed {
-      width: 70px;
+      width: 80px;
     }
 
     .sidebar-header {
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 1.25rem;
-      border-bottom: 1px solid var(--p-surface-border);
-      min-height: 64px;
+      padding: 1.5rem;
+      min-height: 80px;
     }
 
     .sidebar-logo {
-      font-size: 1.75rem;
-      color: var(--p-primary-color);
-      flex-shrink: 0;
+      font-size: 2rem;
+      color: #7e22ce;
     }
 
     .sidebar-title {
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--p-text-color);
-      white-space: nowrap;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #111827;
+      letter-spacing: -0.03em;
     }
 
     .sidebar-nav {
@@ -107,38 +115,35 @@ import { AuthService } from '../features/auth/services/auth.service';
     .nav-item {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
-      padding: 0.75rem 1rem;
-      border-radius: 10px;
-      color: var(--p-text-muted-color);
+      gap: 1rem;
+      padding: 0.85rem 1rem;
+      border-radius: 14px;
+      color: #64748b;
       text-decoration: none;
-      font-weight: 500;
-      font-size: 0.925rem;
-      transition: all 0.2s ease;
+      font-weight: 700;
+      font-size: 0.9rem;
+      transition: all 0.2s;
       cursor: pointer;
-      white-space: nowrap;
     }
 
     .nav-item i {
-      font-size: 1.15rem;
-      flex-shrink: 0;
-      width: 20px;
+      font-size: 1.25rem;
+      width: 24px;
       text-align: center;
     }
 
     .nav-item:hover {
-      background: var(--p-surface-hover);
-      color: var(--p-text-color);
+      background: #f8fafc;
+      color: #111827;
     }
 
     .nav-item.active {
-      background: var(--p-primary-color);
-      color: white;
+      background: #f3e8ff;
+      color: #7e22ce;
     }
 
     .sidebar-footer {
-      padding: 0.75rem;
-      border-top: 1px solid var(--p-surface-border);
+      padding: 1rem;
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
@@ -148,23 +153,23 @@ import { AuthService } from '../features/auth/services/auth.service';
       display: flex;
       align-items: center;
       gap: 0.75rem;
-      padding: 0.5rem;
-      margin-bottom: 0.5rem;
-      background: var(--p-surface-ground);
-      border-radius: 8px;
+      padding: 0.75rem;
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+      border-radius: 16px;
     }
 
     .user-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--p-primary-color);
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: #6B21A8;
       color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: 700;
-      font-size: 0.875rem;
+      font-weight: 800;
+      font-size: 1rem;
     }
 
     .user-info {
@@ -174,39 +179,39 @@ import { AuthService } from '../features/auth/services/auth.service';
     }
 
     .user-name {
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: var(--p-text-color);
+      font-weight: 800;
+      font-size: 0.85rem;
+      color: #111827;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
     .user-email {
-      font-size: 0.75rem;
-      color: var(--p-text-muted-color);
+      font-size: 0.7rem;
+      color: #64748b;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .nav-item.logout:hover {
-      background: var(--p-red-50);
-      color: var(--p-red-500);
+    .nav-item.logout {
+      color: #94a3b8;
     }
 
-    :host-context(.dark-mode) .nav-item.logout:hover {
-      background: rgba(239, 68, 68, 0.1);
+    .nav-item.logout:hover {
+      background: #f5f3ff;
+      color: #6B21A8;
     }
 
     @media (max-width: 768px) {
       .sidebar {
-        transform: translateX(-100%);
+        left: -100%;
+        transition: left 0.4s ease;
       }
 
       .sidebar:not(.collapsed) {
-        transform: translateX(0);
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+        left: 1rem;
       }
     }
   `]
@@ -214,9 +219,23 @@ import { AuthService } from '../features/auth/services/auth.service';
 export class SidebarComponent {
   collapsed = model(false);
 
-  constructor(public authService: AuthService) { }
+  constructor(
+    public authService: AuthService,
+    private confirmationService: ConfirmationService
+  ) { }
 
   onLogout(): void {
-    this.authService.logout();
+    this.confirmationService.confirm({
+      message: '¿Estás seguro de que deseas cerrar la sesión?',
+      header: 'Confirmar Salida',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Sí, Salir',
+      rejectLabel: 'Cancelar',
+      acceptButtonStyleClass: 'btn-mm-pri',
+      rejectButtonStyleClass: 'btn-mm-sec',
+      accept: () => {
+        this.authService.logout();
+      }
+    });
   }
 }

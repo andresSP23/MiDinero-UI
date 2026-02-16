@@ -1,334 +1,282 @@
-import { Component, OnInit, signal } from '@angular/core';
-import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
+import { Component, OnInit, signal, inject } from '@angular/core';
+import { CommonModule, CurrencyPipe, PercentPipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { ChartModule } from 'primeng/chart';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
-import { CardModule } from 'primeng/card';
-import { MessageService } from 'primeng/api';
-import { forkJoin } from 'rxjs';
 import { DashboardService } from '../services/dashboard.service';
-import { BalanceSummary, RecentTransaction, DailyChartEntry } from '../../../core/models/dashboard.model';
+import { BalanceSummary, RecentTransaction } from '../../../core/models/dashboard.model';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-dashboard',
+  standalone: true,
   imports: [
     CommonModule,
     CurrencyPipe,
-    DatePipe,
+    PercentPipe,
     ChartModule,
     TableModule,
     ButtonModule,
-    SkeletonModule,
-    CardModule,
+    SkeletonModule
   ],
   template: `
-    <div class="dashboard">
-      <div class="dashboard-header">
-        <h2>Dashboard</h2>
-        <div class="header-actions">
-          <p-button
-            label="Nuevo Ingreso"
-            icon="pi pi-plus"
-            severity="success"
-            size="small"
-            (onClick)="navigateTo('/transactions', 'INCOME')"
-          />
-          <p-button
-            label="Nuevo Gasto"
-            icon="pi pi-plus"
-            severity="danger"
-            size="small"
-            (onClick)="navigateTo('/transactions', 'EXPENSE')"
-          />
-          <p-button
-            label="Exportar"
-            icon="pi pi-download"
-            severity="secondary"
-            size="small"
-            [outlined]="true"
-            (onClick)="exportData()"
-          />
+    <div class="dashboard-mm">
+      <!-- Summary Row -->
+      <div class="summary-grid">
+        <div class="summary-card-mm">
+          <div class="icon-box-mm balance-box">
+            <i class="pi pi-wallet"></i>
+          </div>
+          <div class="info-mm">
+            <span class="label-mm">Balance Total</span>
+            <span class="value-mm">{{ summary()?.balance || 0 | currency:'USD':'symbol':'1.0-2' }}</span>
+          </div>
+        </div>
+
+        <div class="summary-card-mm">
+          <div class="icon-box-mm income-box">
+            <i class="pi pi-arrow-down-left"></i>
+          </div>
+          <div class="info-mm">
+            <span class="label-mm">Total Ingresos</span>
+            <span class="value-mm">{{ summary()?.totalIncomes || 0 | currency:'USD':'symbol':'1.0-2' }}</span>
+          </div>
+        </div>
+
+        <div class="summary-card-mm">
+          <div class="icon-box-mm expense-box">
+            <i class="pi pi-arrow-up-right"></i>
+          </div>
+          <div class="info-mm">
+            <span class="label-mm">Total Gastos</span>
+            <span class="value-mm">{{ summary()?.totalExpenses || 0 | currency:'USD':'symbol':'1.0-2' }}</span>
+          </div>
         </div>
       </div>
 
-      <!-- Summary Cards -->
-      @if (loadingSummary()) {
-        <div class="summary-cards">
-          @for (i of [1,2,3]; track i) {
-            <div class="summary-card">
-              <p-skeleton width="100%" height="100px" borderRadius="12px" />
-            </div>
-          }
-        </div>
-      } @else {
-        <div class="summary-cards">
-          <div class="summary-card income">
-            <div class="card-icon">
-              <i class="pi pi-arrow-down"></i>
-            </div>
-            <div class="card-info">
-              <span class="card-label">Ingresos</span>
-              <span class="card-value">{{ summary()?.totalIncomes | currency:'USD':'symbol':'1.2-2' }}</span>
-            </div>
+      <!-- Charts Section (Modern Split) -->
+      <div class="charts-grid-mm mb-4">
+        <!-- Line Chart (Evolution) -->
+        <div class="block-card-mm chart-card-mm">
+          <div class="block-header-mm">
+            <h3><i class="pi pi-chart-line" style="color: #6B21A8"></i> Evolución de Fondos</h3>
           </div>
-
-          <div class="summary-card expense">
-            <div class="card-icon">
-              <i class="pi pi-arrow-up"></i>
-            </div>
-            <div class="card-info">
-              <span class="card-label">Gastos</span>
-              <span class="card-value">{{ summary()?.totalExpenses | currency:'USD':'symbol':'1.2-2' }}</span>
-            </div>
-          </div>
-
-          <div class="summary-card balance">
-            <div class="card-icon">
-              <i class="pi pi-wallet"></i>
-            </div>
-            <div class="card-info">
-              <span class="card-label">Balance</span>
-              <span class="card-value">{{ summary()?.balance | currency:'USD':'symbol':'1.2-2' }}</span>
-            </div>
+          <div class="block-content-mm">
+            @if (loadingChart()) {
+              <p-skeleton width="100%" height="280px" borderRadius="16px" />
+            } @else {
+              <div class="chart-container-mm">
+                <p-chart type="line" [data]="lineChartData()" [options]="lineOptions" height="280px" />
+              </div>
+            }
           </div>
         </div>
-      }
 
-      <!-- Chart Section -->
-      <div class="chart-section">
-        <div class="section-card">
-          <h3>Ingresos vs Gastos (Últimos 30 días)</h3>
-          @if (loadingChart()) {
-            <p-skeleton width="100%" height="300px" borderRadius="12px" />
-          } @else {
-            <p-chart type="bar" [data]="chartData()" [options]="chartOptions" height="300px" />
-          }
+        <!-- Doughnut Chart (Ratio) -->
+        <div class="block-card-mm chart-card-mm">
+          <div class="block-header-mm">
+            <h3><i class="pi pi-percentage" style="color: #6B21A8"></i> Análisis de Ahorro</h3>
+          </div>
+          <div class="block-content-mm doughnut-flex">
+            @if (loadingSummary()) {
+              <p-skeleton shape="circle" size="180px" />
+            } @else {
+              <div class="doughnut-container">
+                <p-chart type="doughnut" [data]="doughnutData()" [options]="doughnutOptions" height="200px" />
+                <div class="doughnut-center-text">
+                   <span class="center-label">Ahorro</span>
+                   <span class="center-val">{{ getSavingsPercentage() | percent:'1.0-0' }}</span>
+                </div>
+              </div>
+              <div class="doughnut-custom-legend">
+                <div class="leg-item"><span class="swatch income"></span> Ingresos</div>
+                <div class="leg-item"><span class="swatch expense"></span> Gastos</div>
+              </div>
+            }
+          </div>
         </div>
       </div>
 
-      <!-- Recent Transactions -->
-      <div class="recent-section">
-        <div class="section-card">
-          <h3><i class="pi pi-arrow-down" style="color: var(--p-green-500)"></i> Últimos Ingresos</h3>
-          @if (loadingRecent()) {
-            @for (i of [1,2,3]; track i) {
-              <p-skeleton width="100%" height="40px" styleClass="mb-2" />
-            }
-          } @else {
-            <p-table [value]="recentIncomes()" [rows]="5" styleClass="p-datatable-sm p-datatable-striped">
-              <ng-template #header>
-                <tr>
-                  <th>Descripción</th>
-                  <th>Categoría</th>
-                  <th style="text-align:right">Monto</th>
-                  <th>Fecha</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-item>
-                <tr>
-                  <td>{{ item.description }}</td>
-                  <td><span class="category-tag">{{ item.categoryName }}</span></td>
-                  <td style="text-align:right; color: var(--p-green-500); font-weight:600">
-                    +{{ item.total | currency:'USD':'symbol':'1.2-2' }}
-                  </td>
-                  <td>{{ item.createdAt | date:'dd/MM/yyyy' }}</td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage>
-                <tr><td colspan="4" class="text-center">No hay ingresos recientes</td></tr>
-              </ng-template>
-            </p-table>
-          }
+      <!-- Bottom Row Split -->
+      <div class="btm-grid">
+        <div class="block-card-mm list-card">
+          <div class="block-header-mm">
+            <h3><i class="pi pi-history" style="color: #6B21A8"></i> Gastos Recientes</h3>
+            <button class="more-btn" (click)="navigateTo('/expenses')">Detalles</button>
+          </div>
+          <div class="block-content-mm">
+             @if (loadingRecent()) {
+               @for (i of [1,2,3,4]; track i) { <p-skeleton width="100%" height="40px" styleClass="mb-2" /> }
+             } @else if (recentExpenses().length === 0) {
+               <div class="mm-empty-small">No hay datos registrados</div>
+             } @else {
+               <p-table [value]="recentExpenses().slice(0, 5)" styleClass="p-datatable-sm no-border-table">
+                 <ng-template #header></ng-template>
+                 <ng-template #body let-item>
+                   <tr class="mini-row">
+                     <td class="desc-mm">{{ item.description }}</td>
+                     <td class="text-right text-brand-sec font-bold">-{{ item.total | currency:'USD':'symbol':'1.0-0' }}</td>
+                   </tr>
+                 </ng-template>
+               </p-table>
+             }
+          </div>
         </div>
 
-        <div class="section-card">
-          <h3><i class="pi pi-arrow-up" style="color: var(--p-red-500)"></i> Últimos Gastos</h3>
-          @if (loadingRecent()) {
-            @for (i of [1,2,3]; track i) {
-              <p-skeleton width="100%" height="40px" styleClass="mb-2" />
-            }
-          } @else {
-            <p-table [value]="recentExpenses()" [rows]="5" styleClass="p-datatable-sm p-datatable-striped">
-              <ng-template #header>
-                <tr>
-                  <th>Descripción</th>
-                  <th>Categoría</th>
-                  <th style="text-align:right">Monto</th>
-                  <th>Fecha</th>
-                </tr>
-              </ng-template>
-              <ng-template #body let-item>
-                <tr>
-                  <td>{{ item.description }}</td>
-                  <td><span class="category-tag">{{ item.categoryName }}</span></td>
-                  <td style="text-align:right; color: var(--p-red-500); font-weight:600">
-                    -{{ item.total | currency:'USD':'symbol':'1.2-2' }}
-                  </td>
-                  <td>{{ item.createdAt | date:'dd/MM/yyyy' }}</td>
-                </tr>
-              </ng-template>
-              <ng-template #emptymessage>
-                <tr><td colspan="4" class="text-center">No hay gastos recientes</td></tr>
-              </ng-template>
-            </p-table>
-          }
+        <div class="block-card-mm list-card">
+          <div class="block-header-mm">
+            <h3><i class="pi pi-history" style="color: #6B21A8"></i> Ingresos Recientes</h3>
+            <button class="more-btn" (click)="navigateTo('/income')">Detalles</button>
+          </div>
+          <div class="block-content-mm">
+             @if (loadingRecent()) {
+                @for (i of [1,2,3,4]; track i) { <p-skeleton width="100%" height="40px" styleClass="mb-2" /> }
+             } @else if (recentIncomes().length === 0) {
+               <div class="mm-empty-small">No hay datos registrados</div>
+             } @else {
+               <p-table [value]="recentIncomes().slice(0, 5)" styleClass="p-datatable-sm no-border-table">
+                 <ng-template #header></ng-template>
+                 <ng-template #body let-item>
+                   <tr class="mini-row">
+                     <td class="desc-mm">{{ item.description }}</td>
+                     <td class="text-right text-brand font-bold">+{{ item.total | currency:'USD':'symbol':'1.0-0' }}</td>
+                   </tr>
+                 </ng-template>
+               </p-table>
+             }
+          </div>
         </div>
       </div>
     </div>
   `,
   styles: [`
-    .dashboard {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+    .dashboard-mm { max-width: 1300px; margin: 0 auto; padding: 0.5rem 0; }
 
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
-    }
-
-    .dashboard-header h2 {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--p-text-color);
-      margin: 0;
-    }
-
-    .header-actions {
-      display: flex;
-      gap: 0.5rem;
-      flex-wrap: wrap;
-    }
-
-    /* Summary Cards */
-    .summary-cards {
+    .summary-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
     }
 
-    .summary-card {
+    .summary-card-mm {
+      background: white;
+      border-radius: 20px;
+      padding: 1.25rem 1.5rem;
       display: flex;
       align-items: center;
-      gap: 1rem;
-      padding: 1.5rem;
-      border-radius: 14px;
-      background: var(--p-surface-card);
-      border: 1px solid var(--p-surface-border);
-      transition: transform 0.2s, box-shadow 0.2s;
+      gap: 1.25rem;
+      border: 1px solid #f1f5f9;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
     }
 
-    .summary-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-    }
-
-    .card-icon {
-      width: 52px;
-      height: 52px;
+    .icon-box-mm {
+      width: 48px;
+      height: 48px;
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-shrink: 0;
+      font-size: 1.15rem;
     }
 
-    .card-icon i {
-      font-size: 1.5rem;
-      color: white;
+    .balance-box { background: #f5f3ff; color: #6B21A8; }
+    .income-box { background: #faf5ff; color: #7e22ce; }
+    .expense-box { background: #fafafa; color: #64748b; }
+
+    .info-mm { display: flex; flex-direction: column; gap: 0.1rem; }
+    .label-mm { font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .value-mm { font-size: 1.5rem; font-weight: 800; color: #1e293b; }
+
+    .charts-grid-mm {
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 1.5rem;
     }
 
-    .income .card-icon { background: linear-gradient(135deg, #22c55e, #16a34a); }
-    .expense .card-icon { background: linear-gradient(135deg, #ef4444, #dc2626); }
-    .balance .card-icon { background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    .block-card-mm {
+      background: white;
+      border-radius: 28px;
+      padding: 1.75rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+      border: 1px solid #f1f5f9;
+    }
 
-    .card-info {
+    .block-header-mm {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .block-header-mm h3 { font-size: 0.95rem; font-weight: 800; color: #334155; margin: 0; display: flex; align-items: center; gap: 0.6rem; }
+
+    .chart-container-mm { width: 100%; height: 280px; }
+
+    /* Doughnut Specific */
+    .doughnut-flex { display: flex; flex-direction: column; align-items: center; gap: 1rem; position: relative; }
+    .doughnut-container { width: 100%; height: 200px; position: relative; }
+    .doughnut-center-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
       display: flex;
       flex-direction: column;
-      gap: 0.25rem;
-    }
-
-    .card-label {
-      font-size: 0.85rem;
-      color: var(--p-text-muted-color);
-      font-weight: 500;
-    }
-
-    .card-value {
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--p-text-color);
-    }
-
-    /* Chart */
-    .chart-section {
-      margin-bottom: 1.5rem;
-    }
-
-    .section-card {
-      background: var(--p-surface-card);
-      border: 1px solid var(--p-surface-border);
-      border-radius: 14px;
-      padding: 1.5rem;
-    }
-
-    .section-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--p-text-color);
-      margin: 0 0 1rem;
-      display: flex;
       align-items: center;
-      gap: 0.5rem;
+      pointer-events: none;
     }
+    .center-label { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
+    .center-val { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
 
-    /* Recent */
-    .recent-section {
+    .doughnut-custom-legend { display: flex; gap: 1rem; }
+    .leg-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; font-weight: 700; color: #94a3b8; }
+    .swatch { width: 8px; height: 8px; border-radius: 2px; }
+    .swatch.income { background: #6B21A8; }
+    .swatch.expense { background: #8B5CF6; }
+
+    .btm-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-      gap: 1rem;
-      margin-bottom: 1.5rem;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
     }
 
-    .category-tag {
-      background: var(--p-surface-100);
-      color: var(--p-text-muted-color);
-      padding: 0.2rem 0.6rem;
-      border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 500;
+    .more-btn {
+      background: #f8fafc;
+      border: 1px solid #f1f5f9;
+      padding: 0.3rem 0.75rem;
+      border-radius: 8px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      color: #94a3b8;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .more-btn:hover { background: #f1f5f9; color: #1e293b; }
+
+    .mm-empty-small { height: 160px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 0.85rem; }
+
+    .no-border-table :host ::ng-deep .p-datatable-tbody > tr > td {
+      border: none !important;
+      padding: 1rem 0 !important;
+      font-size: 0.9rem;
     }
 
-    .text-center {
-      text-align: center;
-      color: var(--p-text-muted-color);
-      padding: 1.5rem !important;
-    }
+    .mini-rowValue:hover { background: #fbfcfe; }
+    .desc-mm { font-weight: 700; color: #334155; }
 
-    .mb-2 {
-      margin-bottom: 0.5rem;
-    }
+    .text-right { text-align: right; }
+    .text-brand { color: #6B21A8; }
+    .text-brand-sec { color: #8B5CF6; }
+    .font-bold { font-weight: 800; }
+    .mb-2 { margin-bottom: 0.5rem; }
+    .mb-4 { margin-bottom: 1.5rem; }
 
-    @media (max-width: 768px) {
-      .summary-cards {
-        grid-template-columns: 1fr;
-      }
-
-      .recent-section {
-        grid-template-columns: 1fr;
-      }
-
-      .dashboard-header {
-        flex-direction: column;
-        align-items: flex-start;
-      }
+    @media (max-width: 1024px) {
+      .summary-grid { grid-template-columns: 1fr; }
+      .charts-grid-mm { grid-template-columns: 1fr; }
+      .btm-grid { grid-template-columns: 1fr; }
     }
   `]
 })
@@ -336,71 +284,115 @@ export class DashboardComponent implements OnInit {
   summary = signal<BalanceSummary | null>(null);
   recentIncomes = signal<RecentTransaction[]>([]);
   recentExpenses = signal<RecentTransaction[]>([]);
-  chartData = signal<any>(null);
 
   loadingSummary = signal(true);
   loadingRecent = signal(true);
   loadingChart = signal(true);
 
-  chartOptions: any = {
+  lineChartData = signal<any>(null);
+  doughnutData = signal<any>(null);
+
+  // Pure Purple Palette to match Sidebar
+  private palette = {
+    primary: '#6B21A8', // Brand Purple
+    secondary: '#8B5CF6', // Muted Violet
+    accent: '#D8B4FE',
+    grid: '#f1f5f9'
+  };
+
+  lineOptions: any = {
     responsive: true,
     maintainAspectRatio: false,
+    tension: 0.4,
     plugins: {
       legend: {
+        display: true,
         position: 'top',
-        labels: { usePointStyle: true, padding: 20 }
+        align: 'end',
+        labels: {
+          usePointStyle: true,
+          boxWidth: 6,
+          boxHeight: 6,
+          padding: 15,
+          font: { weight: '700', size: 10 },
+          color: '#94a3b8'
+        }
+      },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        padding: 12,
+        cornerRadius: 12,
+        usePointStyle: true,
+        titleFont: { size: 12, weight: '700' },
+        bodyFont: { size: 11 }
       }
     },
     scales: {
       x: {
-        grid: { display: false }
+        grid: { display: false },
+        ticks: { color: '#94a3b8', font: { size: 9, weight: '700' } }
       },
       y: {
         beginAtZero: true,
-        ticks: {
-          callback: (value: number) => `$${value}`
-        }
+        grid: { color: '#f8fafc', drawTicks: false },
+        ticks: { color: '#94a3b8', font: { size: 9, weight: '600' }, callback: (v: any) => '$' + v }
       }
     }
   };
 
-  constructor(
-    private dashboardService: DashboardService,
-    private messageService: MessageService,
-    private router: Router
-  ) { }
+  doughnutOptions: any = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '88%',
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1e293b',
+        padding: 10,
+        cornerRadius: 10,
+        callbacks: {
+          label: (context: any) => {
+            const label = context.label || '';
+            const value = context.parsed || 0;
+            return `${label}: $${value.toLocaleString()}`;
+          }
+        }
+      }
+    },
+    hover: { mode: null }
+  };
+
+  private dashboardService = inject(DashboardService);
+  private router = inject(Router);
 
   ngOnInit(): void {
-    this.loadSummary();
-    this.loadRecent();
-    this.loadChart();
+    this.loadAllData();
   }
 
-  private loadSummary(): void {
-    this.dashboardService.getBalanceSummary().subscribe({
-      next: data => {
-        this.summary.set(data);
-        this.loadingSummary.set(false);
-      },
-      error: () => this.loadingSummary.set(false)
-    });
-  }
-
-  private loadRecent(): void {
+  private loadAllData(): void {
     forkJoin({
+      summary: this.dashboardService.getBalanceSummary(),
       incomes: this.dashboardService.getRecentIncomes(5),
       expenses: this.dashboardService.getRecentExpenses(5)
     }).subscribe({
-      next: ({ incomes, expenses }) => {
+      next: ({ summary, incomes, expenses }) => {
+        this.summary.set(summary);
         this.recentIncomes.set(incomes);
         this.recentExpenses.set(expenses);
+        this.loadingSummary.set(false);
         this.loadingRecent.set(false);
+        this.loadLineChartData();
+        this.loadDoughnutData(summary);
       },
-      error: () => this.loadingRecent.set(false)
+      error: () => {
+        this.loadingSummary.set(false);
+        this.loadingRecent.set(false);
+        this.loadingChart.set(false);
+      }
     });
   }
 
-  private loadChart(): void {
+  private loadLineChartData(): void {
     const now = new Date();
     const from = new Date(now.getFullYear(), now.getMonth(), 1);
     const to = new Date(now.getFullYear(), now.getMonth() + 1, 0);
@@ -417,31 +409,35 @@ export class DashboardComponent implements OnInit {
           ...expense.chart.map(e => e.date)
         ]);
         const sortedDates = Array.from(allDates).sort();
-
         const incomeMap = new Map(income.chart.map(e => [e.date, e.total]));
         const expenseMap = new Map(expense.chart.map(e => [e.date, e.total]));
 
-        this.chartData.set({
-          labels: sortedDates.map(d => {
-            const parts = d.split('-');
-            return `${parts[2]}/${parts[1]}`;
-          }),
+        this.lineChartData.set({
+          labels: sortedDates.map(d => d.split('-')[2] + '/' + d.split('-')[1]),
           datasets: [
             {
               label: 'Ingresos',
               data: sortedDates.map(d => incomeMap.get(d) || 0),
-              backgroundColor: 'rgba(34, 197, 94, 0.7)',
-              borderColor: '#22c55e',
-              borderWidth: 2,
-              borderRadius: 6,
+              borderColor: this.palette.primary,
+              backgroundColor: 'transparent',
+              pointBackgroundColor: this.palette.primary,
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 2,
+              pointHoverRadius: 4,
+              borderWidth: 2.5
             },
             {
               label: 'Gastos',
               data: sortedDates.map(d => expenseMap.get(d) || 0),
-              backgroundColor: 'rgba(239, 68, 68, 0.7)',
-              borderColor: '#ef4444',
-              borderWidth: 2,
-              borderRadius: 6,
+              borderColor: this.palette.secondary,
+              backgroundColor: 'transparent',
+              pointBackgroundColor: this.palette.secondary,
+              pointBorderColor: '#fff',
+              pointBorderWidth: 2,
+              pointRadius: 2,
+              pointHoverRadius: 4,
+              borderWidth: 2.5
             }
           ]
         });
@@ -451,31 +447,25 @@ export class DashboardComponent implements OnInit {
     });
   }
 
+  private loadDoughnutData(summary: BalanceSummary): void {
+    this.doughnutData.set({
+      labels: ['Ingresos', 'Gastos'],
+      datasets: [{
+        data: [summary.totalIncomes, summary.totalExpenses],
+        backgroundColor: [this.palette.primary, this.palette.secondary],
+        borderWidth: 0,
+        hoverOffset: 0
+      }]
+    });
+  }
+
+  getSavingsPercentage(): number {
+    const summ = this.summary();
+    if (!summ || summ.totalIncomes === 0) return 0;
+    return Math.max(0, summ.balance / summ.totalIncomes);
+  }
+
   navigateTo(path: string, type?: string): void {
     this.router.navigate([path], type ? { queryParams: { type } } : undefined);
-  }
-
-  exportData(): void {
-    this.dashboardService.exportIncomes().subscribe(blob => {
-      this.downloadFile(blob, 'ingresos.xlsx');
-    });
-    this.dashboardService.exportExpenses().subscribe(blob => {
-      this.downloadFile(blob, 'gastos.xlsx');
-    });
-    this.messageService.add({
-      severity: 'info',
-      summary: 'Exportando',
-      detail: 'Los archivos se están descargando...',
-      life: 3000
-    });
-  }
-
-  private downloadFile(blob: Blob, filename: string): void {
-    const url = window.URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = filename;
-    a.click();
-    window.URL.revokeObjectURL(url);
   }
 }

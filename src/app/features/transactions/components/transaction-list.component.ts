@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, input, effect } from '@angular/core';
+import { Component, OnInit, signal, input, inject } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TableModule } from 'primeng/table';
@@ -15,6 +15,7 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
 
 @Component({
   selector: 'app-transaction-list',
+  standalone: true,
   imports: [
     CommonModule,
     CurrencyPipe,
@@ -28,17 +29,20 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
   ],
   providers: [ConfirmationService],
   template: `
-    <div class="transaction-page">
-      <div class="page-header" *ngIf="!filterType()">
-        <h2>Transacciones</h2>
-        <p-button
-          label="Nueva Transacción"
-          icon="pi pi-plus"
-          (onClick)="openDialog()"
-        />
-      </div>
+    <div class="transaction-container-mm">
+      @if (!filterType()) {
+        <div class="page-header-mm">
+          <div class="title-group">
+            <h2>Transacciones</h2>
+            <p class="subtitle-mm">Historial completo de tus movimientos</p>
+          </div>
+          <button class="action-btn-mm premium" (click)="openDialog()">
+            <i class="pi pi-plus"></i> Nueva Transacción
+          </button>
+        </div>
+      }
 
-      <div class="table-card">
+      <div class="block-card-mm table-card-mm">
         <p-table
           [value]="transactions()"
           [lazy]="true"
@@ -48,49 +52,46 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
           [loading]="loading()"
           [rowsPerPageOptions]="[5, 10, 20]"
           (onLazyLoad)="loadTransactions($event)"
-          styleClass="p-datatable-striped"
+          styleClass="p-datatable-sm mm-table"
           [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} transacciones"
+          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords}"
         >
           <ng-template #header>
             <tr>
-              <th pSortableColumn="date" style="width:120px">Fecha <p-sortIcon field="date" /></th>
+              <th pSortableColumn="createdAt">Fecha <p-sortIcon field="createdAt" /></th>
               <th>Descripción</th>
-              <th style="width:140px">Categoría</th>
-              <th style="width:100px">Tipo</th>
-              <th pSortableColumn="total" style="width:130px;text-align:right">Monto <p-sortIcon field="total" /></th>
-              <th style="width:140px">Método</th>
-              <th style="width:100px;text-align:center">Acciones</th>
+              <th>Categoría</th>
+              <th style="width: 100px">Tipo</th>
+              <th pSortableColumn="total" style="text-align:right">Monto <p-sortIcon field="total" /></th>
+              <th style="width: 100px; text-align:center">Acciones</th>
             </tr>
           </ng-template>
 
           <ng-template #body let-tx>
-            <tr>
-              <td>{{ tx.date | date:'dd/MM/yyyy' }}</td>
-              <td>{{ tx.description }}</td>
-              <td><span class="category-tag">{{ tx.categoryName }}</span></td>
+            <tr class="mm-row">
+              <td class="date-cell">{{ tx.createdAt | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="desc-cell">{{ tx.description }}</td>
               <td>
-              <td>
-                <p-tag
-                  [value]="tx.transactionType === 'INCOME' ? 'Ingreso' : 'Gasto'"
-                  [severity]="tx.transactionType === 'INCOME' ? 'success' : 'danger'"
-                />
+                <span class="cat-pill">{{ tx.categoryName }}</span>
               </td>
-              <td [style.color]="tx.transactionType === 'INCOME' ? 'var(--p-green-500)' : 'var(--p-red-500)'"
-                  style="text-align:right; font-weight:600">
+              <td>
+                <span class="type-badge-mini" [class]="tx.transactionType === 'INCOME' ? 'income' : 'expense'">
+                  {{ tx.transactionType === 'INCOME' ? 'Entrada' : 'Salida' }}
+                </span>
+              </td>
+              <td class="monto-cell" [class]="tx.transactionType === 'INCOME' ? 'text-success' : 'text-danger'">
                 {{ tx.transactionType === 'INCOME' ? '+' : '-' }}{{ tx.total | currency:'USD':'symbol':'1.2-2' }}
               </td>
-              <td>{{ tx.paymentMethod }}</td>
-              <td style="text-align:center">
-                <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="info" (onClick)="editTransaction(tx)" />
-                <p-button icon="pi pi-trash" [text]="true" [rounded]="true" severity="danger" (onClick)="confirmDelete(tx)" />
+              <td class="actions-cell">
+                <button class="mini-icon-btn" (click)="editTransaction(tx)"><i class="pi pi-pencil"></i></button>
+                <button class="mini-icon-btn delete" (click)="confirmDelete(tx)"><i class="pi pi-trash"></i></button>
               </td>
             </tr>
           </ng-template>
 
           <ng-template #emptymessage>
             <tr>
-              <td colspan="7" class="text-center">No hay transacciones registradas</td>
+              <td colspan="6" class="mm-empty-row">No hay transacciones registradas</td>
             </tr>
           </ng-template>
 
@@ -114,53 +115,118 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
         (saved)="onSave($event)"
       />
 
-      <p-confirmDialog />
+      <p-confirmDialog 
+        styleClass="mm-dialog" 
+        [closable]="false" 
+      />
     </div>
   `,
   styles: [`
-    .transaction-page {
-      max-width: 1200px;
+    .transaction-container-mm {
+      max-width: 1300px;
       margin: 0 auto;
     }
 
-    .page-header {
+    .page-header-mm {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
+      margin-bottom: 2rem;
     }
 
-    .page-header h2 {
-      font-size: 1.5rem;
+    .title-group h2 { font-size: 1.5rem; font-weight: 800; color: #111827; margin: 0; }
+    .subtitle-mm { color: #64748b; font-size: 0.85rem; margin-top: 0.25rem; }
+
+    .action-btn-mm {
+      border: none;
+      padding: 0.6rem 1.25rem;
+      border-radius: 12px;
       font-weight: 700;
-      color: var(--p-text-color);
-      margin: 0;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn-mm.premium { background: #6B21A8; color: white; box-shadow: 0 4px 12px rgba(107, 33, 168, 0.2); }
+    .action-btn-mm.premium:hover { background: #581c87; }
+    .action-btn-mm:hover { transform: translateY(-1px); background: #581c87; }
+
+    .block-card-mm {
+      background: white;
+      border-radius: 20px;
+      padding: 1.5rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #f3f4f6;
     }
 
-    .table-card {
-      background: var(--p-surface-card);
-      border: 1px solid var(--p-surface-border);
-      border-radius: 14px;
-      padding: 1rem;
-      overflow: hidden;
+    .table-card-mm { padding: 0.5rem; }
+
+    :host ::ng-deep .mm-table .p-datatable-thead > tr > th {
+      background: white !important;
+      border-bottom: 2px solid #f8fafc !important;
+      color: #94a3b8 !important;
+      font-size: 0.75rem !important;
+      font-weight: 800 !important;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 1.25rem 1rem !important;
     }
 
-    .category-tag {
-      background: var(--p-surface-100);
-      color: var(--p-text-muted-color);
-      padding: 0.2rem 0.6rem;
+    :host ::ng-deep .mm-table .p-datatable-tbody > tr > td {
+      border-bottom: 1px solid #f8fafc !important;
+      padding: 1rem !important;
+      font-size: 0.9rem;
+      color: #1e293b;
+    }
+
+    .mm-row:hover { background: #fbfcfe !important; }
+
+    .cat-pill {
+      background: #f3e8ff;
+      color: #6b21a8;
+      padding: 0.25rem 0.6rem;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .type-badge-mini {
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 0.2rem 0.5rem;
       border-radius: 6px;
-      font-size: 0.8rem;
-      font-weight: 500;
     }
+    .type-badge-mini.income { background: #d1fae5; color: #065f46; }
+    .type-badge-mini.expense { background: #fee2e2; color: #991b1b; }
 
-    .text-center {
-      text-align: center;
-      color: var(--p-text-muted-color);
-      padding: 2rem !important;
+    .monto-cell { font-weight: 800; text-align: right; }
+    .text-success { color: #6B21A8; }
+    .text-danger { color: #8B5CF6; }
+
+    .actions-cell { display: flex; justify-content: center; gap: 0.5rem; }
+
+    .mini-icon-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid #f1f5f9;
+      background: #f8fafc;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
     }
+    .mini-icon-btn:hover { background: #f1f5f9; color: #111827; }
+    .mini-icon-btn.delete:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
+    .mm-empty-row { text-align: center; padding: 3rem !important; color: #94a3b8; font-style: italic; }
+
+    .date-cell { color: #64748b !important; font-weight: 600; }
+    .desc-cell { font-weight: 700; color: #1e293b; }
   `]
 })
 export class TransactionListComponent implements OnInit {
@@ -174,20 +240,16 @@ export class TransactionListComponent implements OnInit {
 
   pageSize = 10;
   skeletonRows = [1, 2, 3, 4, 5];
-  skeletonCols = [1, 2, 3, 4, 5, 6, 7];
+  skeletonCols = [1, 2, 3, 4, 5, 6];
 
-  constructor(
-    private transactionService: TransactionService,
-    private categoryService: CategoryService,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService,
-    private route: ActivatedRoute
-  ) { }
+  private transactionService = inject(TransactionService);
+  private categoryService = inject(CategoryService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
+  private route = inject(ActivatedRoute);
 
   ngOnInit(): void {
     this.loadCategories();
-
-    // Check if we got a type from dashboard quick action
     const type = this.route.snapshot.queryParamMap.get('type');
     if (type === 'INCOME' || type === 'EXPENSE') {
       this.openDialog();
@@ -203,10 +265,6 @@ export class TransactionListComponent implements OnInit {
   loadTransactions(event: any): void {
     this.loading.set(true);
     const page = event.first / event.rows;
-    // If filtering by type, we might need to fetch more and filter client-side, 
-    // or just fetch normal page and filter (which makes pagination inaccurate but is safe fallback).
-    // Given backend limitations, we'll fetch larger page size if filtered, or just accept the limitation.
-
     const sort = event.sortField
       ? `${event.sortField},${event.sortOrder === 1 ? 'asc' : 'desc'}`
       : 'createdAt,desc';
@@ -260,7 +318,8 @@ export class TransactionListComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Eliminar',
       rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
+      acceptButtonStyleClass: 'btn-mm-pri',
+      rejectButtonStyleClass: 'btn-mm-sec',
       accept: () => {
         this.transactionService.delete(tx.id).subscribe({
           next: () => {

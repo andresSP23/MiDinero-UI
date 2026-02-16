@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -14,6 +14,7 @@ import { Category } from '../../../core/models/category.model';
 
 @Component({
   selector: 'app-expense-page',
+  standalone: true,
   imports: [
     CommonModule,
     ChartModule,
@@ -23,33 +24,47 @@ import { Category } from '../../../core/models/category.model';
     TransactionDialogComponent
   ],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <h2>Gastos</h2>
-        <p-button
-          label="Nuevo Gasto"
-          icon="pi pi-minus"
-          severity="danger"
-          (onClick)="openDialog()"
-        />
+    <div class="page-container-mm">
+      <!-- Header Row -->
+      <div class="page-header-mm">
+        <div class="title-group">
+          <h2>Gastos</h2>
+          <span class="badge-mm danger">Mensual</span>
+        </div>
+        <button class="action-btn-mm danger" (click)="openDialog()">
+          <i class="pi pi-plus"></i> Nuevo Gasto
+        </button>
       </div>
 
-      <!-- Chart Section -->
-      <div class="chart-card mb-4">
-        <h3>Gastos Diarios</h3>
-        @if (loadingChart()) {
-          <p-skeleton width="100%" height="300px" borderRadius="12px" />
-        } @else {
-          <p-chart type="bar" [data]="chartData()" [options]="chartOptions" height="300px" />
-        }
+      <!-- Analysis Card -->
+      <div class="block-card-mm mb-4">
+        <div class="block-header-mm">
+          <h3><i class="pi pi-chart-bar" style="color: #dc2626"></i> Análisis de Gastos</h3>
+        </div>
+        <div class="block-content-mm">
+          @if (loadingChart()) {
+            <p-skeleton width="100%" height="300px" borderRadius="16px" />
+          } @else {
+            <div class="chart-wrapper">
+              <p-chart type="bar" [data]="chartData()" [options]="chartOptions" height="300px" />
+            </div>
+          }
+        </div>
       </div>
 
-      <!-- List Section -->
-      <app-transaction-list filterType="EXPENSE" #list />
+      <!-- List Card -->
+      <div class="block-card-mm">
+        <div class="block-header-mm">
+          <h3><i class="pi pi-list" style="color: #6B21A8"></i> Listado de Gastos</h3>
+        </div>
+        <div class="block-content-mm">
+          <app-transaction-list filterType="EXPENSE" #list />
+        </div>
+      </div>
 
       <app-transaction-dialog
         [(visible)]="dialogVisible"
-        [transaction]="null"
+        [transaction]="selectedTransaction()"
         [categories]="categories()"
         [defaultType]="'EXPENSE'"
         (saved)="onSave($event)"
@@ -57,42 +72,74 @@ import { Category } from '../../../core/models/category.model';
     </div>
   `,
   styles: [`
-    .page-container {
-      max-width: 1200px;
+    .page-container-mm {
+      max-width: 1300px;
       margin: 0 auto;
+      padding: 0;
     }
-    .page-header {
+
+    .page-header-mm {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
     }
-    .page-header h2 {
-      font-size: 1.5rem;
+
+    .title-group { display: flex; align-items: center; gap: 1rem; }
+    .title-group h2 { font-size: 1.5rem; font-weight: 800; color: #111827; margin: 0; }
+
+    .badge-mm {
+      padding: 0.25rem 0.75rem;
+      border-radius: 100px;
+      font-size: 0.7rem;
       font-weight: 700;
-      color: var(--p-text-color);
-      margin: 0;
+      text-transform: uppercase;
+      letter-spacing: 0.025em;
     }
-    .chart-card {
-      background: var(--p-surface-card);
-      border: 1px solid var(--p-surface-border);
-      border-radius: 14px;
-      padding: 1.5rem;
+    .badge-mm.danger { background: #fee2e2; color: #991b1b; }
+
+    .action-btn-mm {
+      border: none;
+      padding: 0.6rem 1.25rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
     }
-    .chart-card h3 {
-      font-size: 1rem;
-      font-weight: 600;
-      color: var(--p-text-color);
-      margin: 0 0 1rem;
+    .action-btn-mm:hover { transform: translateY(-1px); }
+    .action-btn-mm.danger { background: #6B21A8; color: white; box-shadow: 0 4px 12px rgba(107, 33, 168, 0.2); }
+    .action-btn-mm.danger:hover { background: #581c87; }
+
+    .block-card-mm {
+      background: white;
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      border: 1px solid #f3f4f6;
     }
+
+    .block-header-mm {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .block-header-mm h3 { font-size: 1.1rem; font-weight: 800; color: #111827; margin: 0; display: flex; align-items: center; gap: 0.75rem; }
+
+    .chart-wrapper { width: 100%; height: 300px; }
     .mb-4 { margin-bottom: 1.5rem; }
   `]
 })
 export class ExpensePageComponent implements OnInit {
+  dialogVisible = false;
   chartData = signal<any>(null);
   loadingChart = signal(true);
-  dialogVisible = false;
   categories = signal<Category[]>([]);
+  selectedTransaction = signal<Transaction | null>(null);
 
   chartOptions: any = {
     responsive: true,
@@ -101,20 +148,26 @@ export class ExpensePageComponent implements OnInit {
       legend: { display: false }
     },
     scales: {
-      x: { grid: { display: false } },
+      x: {
+        grid: { display: false },
+        ticks: { color: '#6b7280', font: { weight: '600', size: 11 } }
+      },
       y: {
         beginAtZero: true,
-        ticks: { callback: (value: number) => `$${value}` }
+        grid: { color: '#f8fafc', drawTicks: false },
+        ticks: {
+          color: '#94a3b8',
+          font: { weight: '600', size: 10 },
+          callback: (value: number) => `$${value}`
+        }
       }
     }
   };
 
-  constructor(
-    private dashboardService: DashboardService,
-    private transactionService: TransactionService,
-    private categoryService: CategoryService,
-    private messageService: MessageService
-  ) { }
+  private dashboardService = inject(DashboardService);
+  private transactionService = inject(TransactionService);
+  private categoryService = inject(CategoryService);
+  private messageService = inject(MessageService);
 
   ngOnInit() {
     this.loadChart();
@@ -148,10 +201,9 @@ export class ExpensePageComponent implements OnInit {
           datasets: [{
             label: 'Gastos',
             data: values,
-            backgroundColor: 'rgba(239, 68, 68, 0.7)',
-            borderColor: '#ef4444',
-            borderWidth: 2,
-            borderRadius: 6
+            backgroundColor: '#8B5CF6',
+            borderRadius: 6,
+            barThickness: 14
           }]
         });
         this.loadingChart.set(false);

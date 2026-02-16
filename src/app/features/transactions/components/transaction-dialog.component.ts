@@ -1,17 +1,17 @@
-import { Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, signal, SimpleChanges, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
 import { ButtonModule } from 'primeng/button';
 import { Transaction, TransactionRequest } from '../../../core/models/transaction.model';
 import { Category } from '../../../core/models/category.model';
 
 @Component({
   selector: 'app-transaction-dialog',
+  standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -19,140 +19,159 @@ import { Category } from '../../../core/models/category.model';
     InputTextModule,
     InputNumberModule,
     SelectModule,
-    DatePickerModule,
     ButtonModule,
   ],
   template: `
     <p-dialog
-      [header]="transaction ? 'Editar Transacción' : 'Nueva Transacción'"
       [(visible)]="visible"
       [modal]="true"
-      [style]="{ width: '480px' }"
+      [style]="{ width: '400px', borderRadius: '24px' }"
       [draggable]="false"
       [resizable]="false"
+      [closable]="false"
+      styleClass="mm-dialog"
       (onHide)="onCancel()"
     >
-      <form [formGroup]="form" class="dialog-form">
-        <div class="form-field">
+      <ng-template #header>
+        <div class="mm-dialog-header">
+          <h3>{{ transaction ? 'Editar Movimiento' : 'Nuevo Movimiento' }}</h3>
+          <p>{{ transaction ? 'Actualiza los detalles de tu registro' : 'Ingresa los datos de tu nueva transacción' }}</p>
+        </div>
+      </ng-template>
+
+      <form [formGroup]="form" class="mm-form">
+        <div class="form-field-mm">
           <label for="description">Descripción</label>
-          <input pInputText id="description" formControlName="description" placeholder="Ej: Salario mensual" class="w-full" />
+          <input 
+            pInputText 
+            id="description" 
+            formControlName="description" 
+            placeholder="Ej: Pago de servicios" 
+            class="mm-input" 
+          />
         </div>
 
-        <div class="form-row">
-          <div class="form-field">
-            <label for="total">Monto</label>
-            <p-inputNumber
-              id="total"
-              formControlName="total"
-              mode="currency"
-              currency="USD"
-              locale="en-US"
-              [minFractionDigits]="2"
-              styleClass="w-full"
-              inputStyleClass="w-full"
-            />
-          </div>
-
-          @if (!defaultType) {
-            <div class="form-field">
-              <label for="transactionType">Tipo</label>
-              <p-select
-                id="transactionType"
-                formControlName="transactionType"
-                [options]="typeOptions"
-                placeholder="Seleccionar"
-                styleClass="w-full"
-              />
-            </div>
-          }
-        </div>
-
-        <div class="form-row">
-          <div class="form-field">
-            <label for="categoryId">Categoría</label>
-            <p-select
-              id="categoryId"
-              formControlName="categoryId"
-              [options]="categoryOptions()"
-              optionLabel="label"
-              optionValue="value"
-              placeholder="Seleccionar"
-              styleClass="w-full"
-            />
-          </div>
-
-          <div class="form-field">
-            <label for="date">Fecha</label>
-            <p-datePicker
-              id="date"
-              formControlName="date"
-              dateFormat="yy-mm-dd"
-              [showIcon]="true"
-              styleClass="w-full"
-              inputStyleClass="w-full"
-            />
-          </div>
-        </div>
-
-        <div class="form-field">
-          <label for="paymentMethod">Método de Pago</label>
-          <p-select
-            id="paymentMethod"
-            formControlName="paymentMethod"
-            [options]="paymentOptions"
-            placeholder="Seleccionar"
+        <div class="form-field-mm">
+          <label for="total">Monto</label>
+          <p-inputNumber
+            id="total"
+            formControlName="total"
+            mode="currency"
+            currency="USD"
+            locale="en-US"
+            [minFractionDigits]="2"
             styleClass="w-full"
+            inputStyleClass="mm-input"
+            placeholder="$0.00"
+          />
+        </div>
+
+        @if (!defaultType) {
+          <div class="form-field-mm">
+            <label for="transactionType">Tipo de Movimiento</label>
+            <p-select
+              id="transactionType"
+              formControlName="transactionType"
+              [options]="typeOptions"
+              placeholder="Seleccionar tipo"
+              styleClass="mm-select"
+            />
+          </div>
+        }
+
+        <div class="form-field-mm">
+          <label for="categoryId">Categoría</label>
+          <p-select
+            id="categoryId"
+            formControlName="categoryId"
+            [options]="categoryOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Seleccionar categoría"
+            styleClass="mm-select"
           />
         </div>
       </form>
 
       <ng-template #footer>
-        <div class="dialog-footer">
-          <p-button label="Cancelar" severity="secondary" [text]="true" (onClick)="onCancel()" />
-          <p-button
-            [label]="transaction ? 'Actualizar' : 'Crear'"
-            icon="pi pi-check"
-            [loading]="saving()"
-            [disabled]="form.invalid"
-            (onClick)="onSave()"
-          />
+        <div class="mm-dialog-footer">
+          <button class="btn-mm-sec" (click)="onCancel()">Cancelar</button>
+          <button 
+            class="btn-mm-pri" 
+            [class.loading]="saving()"
+            [disabled]="form.invalid || saving()" 
+            (click)="onSave()"
+          >
+            {{ transaction ? 'Guardar Cambios' : 'Registrar Ahora' }}
+          </button>
         </div>
       </ng-template>
     </p-dialog>
   `,
   styles: [`
-    .dialog-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-      padding: 0.5rem 0;
+    :host ::ng-deep .mm-dialog .p-dialog-header {
+      padding: 1.5rem 1.5rem 0.5rem !important;
+      border: none !important;
+      background: white !important;
+    }
+    :host ::ng-deep .mm-dialog .p-dialog-content {
+      padding: 1rem 1.5rem !important;
+      background: white !important;
+    }
+    :host ::ng-deep .mm-dialog .p-dialog-footer {
+      padding: 1.5rem !important;
+      border: none !important;
+      background: white !important;
     }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+    .mm-dialog-header h3 { font-size: 1.25rem; font-weight: 800; color: #111827; margin: 0; }
+    .mm-dialog-header p { font-size: 0.8rem; color: #64748b; margin: 0.25rem 0 0; }
+
+    .mm-form { display: flex; flex-direction: column; gap: 1.25rem; }
+    .form-field-mm { display: flex; flex-direction: column; gap: 0.5rem; }
+    .form-field-mm label { font-size: 0.8rem; font-weight: 700; color: #1e293b; }
+
+    :host ::ng-deep .mm-input {
+      width: 100% !important;
+      padding: 0.75rem 1rem !important;
+      border: 1.5px solid #f1f5f9 !important;
+      border-radius: 12px !important;
+      font-size: 0.9rem !important;
+      transition: border-color 0.2s !important;
+      background: #f8fafc !important;
+    }
+    :host ::ng-deep .mm-input:focus { border-color: #6B21A8 !important; box-shadow: none !important; background: white !important; }
+
+    :host ::ng-deep .mm-select {
+      width: 100% !important;
+      background: #f8fafc !important;
+      border: 1.5px solid #f1f5f9 !important;
+      border-radius: 12px !important;
+      padding: 0.25rem 0.5rem !important;
+    }
+    :host ::ng-deep .mm-select:not(.p-disabled).p-focus { border-color: #6B21A8 !important; box-shadow: none !important; }
+
+    .mm-dialog-footer { display: flex; gap: 0.75rem; width: 100%; }
+
+    .btn-mm-pri, .btn-mm-sec {
+      flex: 1;
+      padding: 0.75rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
     }
 
-    .form-field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
+    .btn-mm-pri { background: #6B21A8; color: white; }
+    .btn-mm-pri:hover:not(:disabled) { background: #581c87; transform: translateY(-1px); }
+    .btn-mm-pri:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .form-field label {
-      font-weight: 600;
-      font-size: 0.875rem;
-      color: var(--p-text-color);
-    }
+    .btn-mm-sec { background: #f1f5f9; color: #475569; }
+    .btn-mm-sec:hover { background: #e2e8f0; }
 
     .w-full { width: 100%; }
-
-    .dialog-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
-    }
   `]
 })
 export class TransactionDialogComponent implements OnChanges {
@@ -163,6 +182,7 @@ export class TransactionDialogComponent implements OnChanges {
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() saved = new EventEmitter<TransactionRequest>();
 
+  private fb = inject(FormBuilder);
   form: FormGroup;
   saving = signal(false);
 
@@ -171,24 +191,14 @@ export class TransactionDialogComponent implements OnChanges {
     { label: 'Gasto', value: 'EXPENSE' }
   ];
 
-  paymentOptions = [
-    { label: 'Efectivo', value: 'CASH' },
-    { label: 'Tarjeta de Crédito', value: 'CREDIT_CARD' },
-    { label: 'Tarjeta de Débito', value: 'DEBIT_CARD' },
-    { label: 'Transferencia', value: 'TRANSFER' },
-    { label: 'Otro', value: 'OTHER' }
-  ];
-
   categoryOptions = signal<{ label: string; value: number }[]>([]);
 
-  constructor(private fb: FormBuilder) {
+  constructor() {
     this.form = this.fb.group({
       description: ['', Validators.required],
       total: [null, [Validators.required, Validators.min(0.01)]],
       transactionType: ['', Validators.required],
-      categoryId: [null, Validators.required],
-      date: [new Date(), Validators.required],
-      paymentMethod: ['', Validators.required]
+      categoryId: [null, Validators.required]
     });
   }
 
@@ -204,36 +214,24 @@ export class TransactionDialogComponent implements OnChanges {
         description: this.transaction.description,
         total: this.transaction.total,
         transactionType: this.transaction.transactionType,
-        categoryId: this.transaction.categoryId,
-        date: new Date(this.transaction.date),
-        paymentMethod: this.transaction.paymentMethod
+        categoryId: this.transaction.categoryId
       });
     } else if (changes['visible'] && this.visible && !this.transaction) {
       this.form.reset({
-        date: new Date(),
-        transactionType: this.defaultType // Set default type if provided
+        transactionType: this.defaultType
       });
     }
   }
 
   onSave(): void {
     if (this.form.invalid) return;
-
-    const value = this.form.value;
-    const request: TransactionRequest = {
-      ...value,
-      date: value.date instanceof Date
-        ? value.date.toISOString().split('T')[0]
-        : value.date
-    };
-    this.saved.emit(request);
+    this.saved.emit(this.form.value as TransactionRequest);
   }
 
   onCancel(): void {
     this.visible = false;
     this.visibleChange.emit(false);
     this.form.reset({
-      date: new Date(),
       transactionType: this.defaultType
     });
   }

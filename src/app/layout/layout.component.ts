@@ -4,9 +4,9 @@ import { SidebarComponent } from './sidebar.component';
 import { NavbarComponent } from './navbar.component';
 
 @Component({
-    selector: 'app-layout',
-    imports: [RouterOutlet, SidebarComponent, NavbarComponent],
-    template: `
+  selector: 'app-layout',
+  imports: [RouterOutlet, SidebarComponent, NavbarComponent],
+  template: `
     <div class="layout" [class.sidebar-collapsed]="collapsed">
       <app-sidebar [(collapsed)]="collapsed" />
       <div class="layout-main">
@@ -17,7 +17,7 @@ import { NavbarComponent } from './navbar.component';
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .layout {
       display: flex;
       min-height: 100vh;
@@ -28,31 +28,27 @@ import { NavbarComponent } from './navbar.component';
       flex: 1;
       display: flex;
       flex-direction: column;
-      margin-left: 260px;
-      transition: margin-left 0.3s ease;
+      margin-left: 280px;
+      transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     .layout.sidebar-collapsed .layout-main {
-      margin-left: 70px;
+      margin-left: 100px;
     }
 
     .layout-content {
-      flex: 1;
-      padding: 1.5rem;
-      overflow-y: auto;
+      height: 60px;
+      margin: 0.75rem 1.5rem 0.25rem;
+      box-shadow: var(--p-shadow-premium);
     }
 
     @media (max-width: 768px) {
-      .layout-main {
-        margin-left: 0;
-      }
-
-      .layout.sidebar-collapsed .layout-main {
+      .layout-main, .layout.sidebar-collapsed .layout-main {
         margin-left: 0;
       }
     }
   `]
 })
 export class LayoutComponent {
-    collapsed = false;
+  collapsed = false;
 }

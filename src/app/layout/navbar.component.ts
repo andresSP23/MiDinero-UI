@@ -5,9 +5,9 @@ import { ToggleSwitchModule } from 'primeng/toggleswitch';
 import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-navbar',
-    imports: [CommonModule, ButtonModule, ToggleSwitchModule, FormsModule],
-    template: `
+  selector: 'app-navbar',
+  imports: [CommonModule, ButtonModule, ToggleSwitchModule, FormsModule],
+  template: `
     <header class="navbar">
       <div class="navbar-left">
         <p-button
@@ -28,15 +28,18 @@ import { FormsModule } from '@angular/forms';
       </div>
     </header>
   `,
-    styles: [`
+  styles: [`
     .navbar {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0.75rem 1.5rem;
-      background: var(--p-surface-card);
-      border-bottom: 1px solid var(--p-surface-border);
-      min-height: 64px;
+      padding: 0 1.25rem;
+      background: #ffffff;
+      border: 1px solid #f1f5f9;
+      border-radius: 20px;
+      height: 60px;
+      margin: 0.75rem 1.5rem 0.25rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
     }
 
     .navbar-left {
@@ -64,25 +67,25 @@ import { FormsModule } from '@angular/forms';
   `]
 })
 export class NavbarComponent {
-    toggleSidebar = output();
-    darkMode = signal(false);
+  toggleSidebar = output();
+  darkMode = signal(false);
 
-    constructor() {
-        const saved = localStorage.getItem('midinero_theme');
-        if (saved === 'dark') {
-            this.darkMode.set(true);
-            document.documentElement.classList.add('dark-mode');
-        }
+  constructor() {
+    const saved = localStorage.getItem('midinero_theme');
+    if (saved === 'dark') {
+      this.darkMode.set(true);
+      document.documentElement.classList.add('dark-mode');
     }
+  }
 
-    onThemeToggle(): void {
-        const isDark = this.darkMode();
-        if (isDark) {
-            document.documentElement.classList.add('dark-mode');
-            localStorage.setItem('midinero_theme', 'dark');
-        } else {
-            document.documentElement.classList.remove('dark-mode');
-            localStorage.setItem('midinero_theme', 'light');
-        }
+  onThemeToggle(): void {
+    const isDark = this.darkMode();
+    if (isDark) {
+      document.documentElement.classList.add('dark-mode');
+      localStorage.setItem('midinero_theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark-mode');
+      localStorage.setItem('midinero_theme', 'light');
     }
+  }
 }

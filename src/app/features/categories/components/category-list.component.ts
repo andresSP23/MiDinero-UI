@@ -1,4 +1,4 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -12,6 +12,7 @@ import { CategoryDialogComponent } from './category-dialog.component';
 
 @Component({
   selector: 'app-category-list',
+  standalone: true,
   imports: [
     CommonModule,
     TableModule,
@@ -23,81 +24,60 @@ import { CategoryDialogComponent } from './category-dialog.component';
   ],
   providers: [ConfirmationService],
   template: `
-    <div class="category-page">
-      <div class="page-header">
-        <h2>Categorías</h2>
-        <p-button
-          label="Nueva Categoría"
-          icon="pi pi-plus"
-          (onClick)="openDialog()"
-        />
+    <div class="page-container-mm">
+      <!-- Header Row -->
+      <div class="page-header-mm">
+        <div class="title-group">
+          <h2>Categorías</h2>
+          <p class="subtitle-mm">Gestiona tus etiquetas de ingresos y gastos</p>
+        </div>
+        <button class="action-btn-mm premium" (click)="openDialog()">
+          <i class="pi pi-plus"></i> Nueva Categoría
+        </button>
       </div>
 
-      <div class="table-card">
-        <p-table
-          [value]="categories()"
-          [loading]="loading()"
-          [paginator]="true"
-          [rows]="10"
-          [rowsPerPageOptions]="[5, 10, 20]"
-          styleClass="p-datatable-striped"
-          [showCurrentPageReport]="true"
-          currentPageReportTemplate="Mostrando {first} a {last} de {totalRecords} categorías"
-        >
-          <ng-template #header>
-            <tr>
-              <th>Nombre</th>
-              <th>Descripción</th>
-              <th style="width:120px">Tipo</th>
-              <th style="width:80px;text-align:center">Acciones</th>
-            </tr>
-          </ng-template>
+      <div class="cards-grid-mm" *ngIf="!loading()">
+        @for (cat of categories(); track cat.id) {
+          <div class="cat-card-mm hover-shadow">
+            <div class="card-top-mm">
+              <div class="icon-set-mm" [class]="cat.categoryType === 'INCOME' ? 'income' : 'expense'">
+                <i [class]="cat.categoryType === 'INCOME' ? 'pi pi-arrow-down-left' : 'pi pi-arrow-up-right'"></i>
+              </div>
+              <span class="type-badge-mm" [class]="cat.categoryType === 'INCOME' ? 'income' : 'expense'">
+                {{ cat.categoryType === 'INCOME' ? 'Ingreso' : 'Gasto' }}
+              </span>
+            </div>
+            
+            <div class="card-info-mm">
+              <h3 class="cat-name-mm">{{ cat.name }}</h3>
+              <p class="cat-desc-mm">{{ cat.description || 'Sin descripción adicional' }}</p>
+            </div>
 
-          <ng-template #body let-cat>
-            <tr>
-              <td style="font-weight:600">{{ cat.name }}</td>
-              <td style="color:var(--p-text-muted-color)">{{ cat.description || '—' }}</td>
-              <td>
-                <p-tag
-                  [value]="cat.categoryType === 'INCOME' ? 'Ingreso' : 'Gasto'"
-                  [severity]="cat.categoryType === 'INCOME' ? 'success' : 'danger'"
-                />
-              </td>
-              <td style="text-align:center">
-                <p-button
-                  icon="pi pi-pencil"
-                  [text]="true"
-                  [rounded]="true"
-                  severity="info"
-                  (onClick)="editCategory(cat)"
-                />
-                <p-button
-                  icon="pi pi-trash"
-                  [text]="true"
-                  [rounded]="true"
-                  severity="danger"
-                  (onClick)="confirmDelete(cat)"
-                />
-              </td>
-            </tr>
-          </ng-template>
+            <div class="card-footer-mm">
+              <div class="spacer"></div>
+              <button class="icon-btn-mm" (click)="editCategory(cat)"><i class="pi pi-pencil"></i></button>
+              <button class="icon-btn-mm delete" (click)="confirmDelete(cat)"><i class="pi pi-trash"></i></button>
+            </div>
+          </div>
+        }
+      </div>
 
-          <ng-template #emptymessage>
-            <tr>
-              <td colspan="5" class="text-center">No hay categorías registradas</td>
-            </tr>
-          </ng-template>
+      <!-- Loading State -->
+      <div class="cards-grid-mm" *ngIf="loading()">
+        @for (i of [1,2,3,4,5,6]; track i) {
+          <div class="cat-card-mm skeleton">
+            <p-skeleton width="48px" height="48px" borderRadius="12px" styleClass="mb-3" />
+            <p-skeleton width="60%" height="1.2rem" styleClass="mb-2" />
+            <p-skeleton width="90%" height="0.8rem" />
+          </div>
+        }
+      </div>
 
-          <ng-template #loadingbody>
-            @for (i of [1,2,3,4,5]; track i) {
-              <tr>
-                @for (j of [1,2,3,4,5]; track j) {
-                  <td><p-skeleton /></td>
-                }
-              </tr>
-            }
-          </ng-template>
-        </p-table>
+      <!-- Empty State -->
+      <div class="empty-state-mm block-card-mm" *ngIf="!loading() && categories().length === 0">
+        <div class="empty-icon-mm"><i class="pi pi-tags"></i></div>
+        <h3>No hay categorías</h3>
+        <p>Comienza creando una categoría para organizar tus transacciones.</p>
       </div>
 
       <app-category-dialog
@@ -106,52 +86,150 @@ import { CategoryDialogComponent } from './category-dialog.component';
         (saved)="onSave($event)"
       />
 
-      <p-confirmDialog />
+      <p-confirmDialog 
+        styleClass="mm-dialog" 
+        [closable]="false" 
+      />
     </div>
   `,
   styles: [`
-    .category-page {
-      max-width: 1000px;
+    .page-container-mm {
+      max-width: 1300px;
       margin: 0 auto;
+      padding: 0;
     }
 
-    .page-header {
+    .page-header-mm {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1.5rem;
-      flex-wrap: wrap;
-      gap: 1rem;
+      margin-bottom: 2rem;
     }
 
-    .page-header h2 {
-      font-size: 1.5rem;
+    .title-group h2 { font-size: 1.5rem; font-weight: 800; color: #111827; margin: 0; }
+    .subtitle-mm { color: #64748b; font-size: 0.85rem; margin: 0.25rem 0 0; }
+
+    .action-btn-mm {
+      border: none;
+      padding: 0.6rem 1.25rem;
+      border-radius: 12px;
       font-weight: 700;
-      color: var(--p-text-color);
-      margin: 0;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .action-btn-mm.premium { background: #6B21A8; color: white; box-shadow: 0 4px 12px rgba(107, 33, 168, 0.2); }
+    .action-btn-mm:hover { transform: translateY(-1px); background: #581c87; }
+
+    .cards-grid-mm {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
     }
 
-    .table-card {
-      background: var(--p-surface-card);
-      border: 1px solid var(--p-surface-border);
-      border-radius: 14px;
-      padding: 1rem;
+    .cat-card-mm {
+      background: white;
+      border-radius: 20px;
+      padding: 1.5rem;
+      border: 1px solid #f3f4f6;
+      display: flex;
+      flex-direction: column;
+      height: 200px;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .hover-shadow:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+      border-color: #6B21A8;
+    }
+
+    .card-top-mm {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1rem;
+    }
+
+    .icon-set-mm {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+    }
+    .icon-set-mm.income { background: #f5f3ff; color: #6B21A8; }
+    .icon-set-mm.expense { background: #faf5ff; color: #8B5CF6; }
+
+    .type-badge-mm {
+      font-size: 0.65rem;
+      font-weight: 800;
+      padding: 0.25rem 0.6rem;
+      border-radius: 6px;
+      text-transform: uppercase;
+    }
+    .type-badge-mm.income { background: #f5f3ff; color: #6B21A8; border: 1px solid #ddd6fe; }
+    .type-badge-mm.expense { background: #faf5ff; color: #8B5CF6; border: 1px solid #e9d5ff; }
+
+    .cat-name-mm { font-size: 1.1rem; font-weight: 800; color: #111827; margin: 0 0 0.5rem; }
+    .cat-desc-mm { 
+      font-size: 0.85rem; 
+      color: #64748b; 
+      line-height: 1.5; 
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
     }
 
-    .color-dot {
-      display: inline-block;
-      width: 24px;
-      height: 24px;
-      border-radius: 8px;
-      border: 2px solid var(--p-surface-border);
+    .card-footer-mm {
+      margin-top: auto;
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
     }
+    .spacer { flex: 1; }
 
-    .text-center {
-      text-align: center;
-      color: var(--p-text-muted-color);
-      padding: 2rem !important;
+    .icon-btn-mm {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: 1px solid #f1f5f9;
+      background: #f8fafc;
+      color: #64748b;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
     }
+    .icon-btn-mm:hover { background: #f1f5f9; color: #111827; border-color: #e2e8f0; }
+    .icon-btn-mm.delete:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+
+    .empty-state-mm {
+      text-align: center;
+      padding: 4rem 2rem;
+      background: white;
+      border-radius: 24px;
+      border: 1px solid #f3f4f6;
+      grid-column: 1 / -1;
+    }
+    .empty-icon-mm {
+      font-size: 3rem;
+      color: #e2e8f0;
+      margin-bottom: 1rem;
+    }
+    .empty-state-mm h3 { color: #111827; margin-bottom: 0.5rem; }
+    .empty-state-mm p { color: #64748b; font-size: 0.9rem; }
+
+    .block-card-mm { background: white; border-radius: 24px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #f3f4f6; }
+    .mb-3 { margin-bottom: 0.75rem; }
+    .mb-2 { margin-bottom: 0.5rem; }
   `]
 })
 export class CategoryListComponent implements OnInit {
@@ -160,11 +238,9 @@ export class CategoryListComponent implements OnInit {
   dialogVisible = false;
   selectedCategory = signal<Category | null>(null);
 
-  constructor(
-    private categoryService: CategoryService,
-    private confirmationService: ConfirmationService,
-    private messageService: MessageService
-  ) { }
+  private categoryService = inject(CategoryService);
+  private confirmationService = inject(ConfirmationService);
+  private messageService = inject(MessageService);
 
   ngOnInit(): void {
     this.loadCategories();
@@ -218,7 +294,8 @@ export class CategoryListComponent implements OnInit {
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Eliminar',
       rejectLabel: 'Cancelar',
-      acceptButtonStyleClass: 'p-button-danger',
+      acceptButtonStyleClass: 'btn-mm-pri',
+      rejectButtonStyleClass: 'btn-mm-sec',
       accept: () => {
         this.categoryService.delete(cat.id).subscribe({
           next: () => {

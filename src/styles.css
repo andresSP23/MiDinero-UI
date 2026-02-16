@@ -5,6 +5,34 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
 
 /* ===== Global Reset & Base ===== */
+:root {
+  --p-primary-color: #6B21A8;
+  --p-primary-hover: #581c87;
+  --p-surface-ground: #f9fafb;
+  --p-surface-card: #ffffff;
+  --p-surface-border: #f3f4f6;
+  --p-text-color: #111827;
+  --p-text-muted-color: #6b7280;
+
+  /* Brand specific */
+  --p-money-purple: #6B21A8;
+  --p-money-green: #065f46;
+  --p-money-red: #7f1d1d;
+  --p-money-bg-purple: #f3e8ff;
+  --p-money-bg-green: #d1fae5;
+  --p-money-bg-red: #fee2e2;
+
+  --p-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --p-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.dark-mode:root {
+  --p-glass-bg: rgba(30, 41, 59, 0.7);
+  --p-glass-border: rgba(255, 255, 255, 0.1);
+  --p-shadow-premium: 0 10px 30px -5px rgba(0, 0, 0, 0.3), 0 4px 10px -3px rgba(0, 0, 0, 0.2);
+  --p-surface-ground: #0f172a;
+}
+
 *,
 *::before,
 *::after {
@@ -19,12 +47,11 @@ html {
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
   background: var(--p-surface-ground);
   color: var(--p-text-color);
-  line-height: 1.5;
+  line-height: 1.6;
   min-height: 100vh;
 }
 
@@ -60,7 +87,7 @@ a:hover {
 /* ===== PrimeNG Overrides for polish ===== */
 
 /* Smooth table transitions */
-.p-datatable .p-datatable-tbody > tr {
+.p-datatable .p-datatable-tbody>tr {
   transition: background 0.15s ease;
 }
 
@@ -88,4 +115,82 @@ a:hover {
   html {
     font-size: 14px;
   }
+}
+
+/* ===== Global Buttons (Money Manager) ===== */
+.btn-mm-pri,
+.btn-mm-sec {
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-family: inherit;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-mm-pri {
+  background: #6B21A8 !important;
+  color: white !important;
+}
+
+.btn-mm-pri:hover:not(:disabled) {
+  background: #581c87;
+  transform: translateY(-1px);
+}
+
+.btn-mm-pri:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-mm-sec {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+}
+
+.btn-mm-sec:hover {
+  background: #e2e8f0 !important;
+}
+
+/* ===== Dialog & Confirmation Styling ===== */
+.p-confirmdialog-accept-button,
+.p-button.p-confirmdialog-accept-button {
+  background: #6B21A8 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 12px !important;
+  margin-left: 0.5rem !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 700 !important;
+  transition: all 0.2s !important;
+}
+
+.p-confirmdialog-accept-button:hover {
+  background: #581c87 !important;
+}
+
+.p-confirmdialog-reject-button,
+.p-button.p-confirmdialog-reject-button {
+  background: #f1f5f9 !important;
+  color: #475569 !important;
+  border: none !important;
+  border-radius: 12px !important;
+  padding: 0.75rem 1.5rem !important;
+  font-weight: 700 !important;
+  transition: all 0.2s !important;
+}
+
+.p-confirmdialog-reject-button:hover {
+  background: #e2e8f0 !important;
+}
+
+.p-dialog-mask {
+  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.4);
 }
