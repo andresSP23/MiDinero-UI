@@ -17,9 +17,13 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
             switch (error.status) {
                 case 401:
-                    message = 'Sesión expirada. Por favor inicie sesión nuevamente.';
-                    localStorage.removeItem('token');
-                    router.navigate(['/login']);
+                    if (req.url.includes('/auth/authenticate') || req.url.includes('/auth/register')) {
+                        message = apiError?.error || 'Credenciales incorrectas. Verifique e intente de nuevo.';
+                    } else {
+                        message = 'Sesión expirada. Por favor inicie sesión nuevamente.';
+                        localStorage.removeItem('token');
+                        router.navigate(['/login']);
+                    }
                     break;
                 case 403:
                     message = 'No tiene permisos para realizar esta acción.';
@@ -44,12 +48,15 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                     message = apiError?.error || apiError?.businessErrorDescription || message;
             }
 
-            messageService.add({
-                severity: 'error',
-                summary: summary,
-                detail: message,
-                life: 6000
-            });
+            // Mostrar Toast solo si NO es una ruta de autenticación (que se maneja localmente)
+            if (!req.url.includes('/auth/')) {
+                messageService.add({
+                    severity: 'error',
+                    summary: summary,
+                    detail: message,
+                    life: 6000
+                });
+            }
 
             return throwError(() => error);
         })

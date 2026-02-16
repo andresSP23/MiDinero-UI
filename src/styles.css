@@ -31,6 +31,10 @@
   --p-glass-border: rgba(255, 255, 255, 0.1);
   --p-shadow-premium: 0 10px 30px -5px rgba(0, 0, 0, 0.3), 0 4px 10px -3px rgba(0, 0, 0, 0.2);
   --p-surface-ground: #0f172a;
+  --p-surface-card: #1e293b;
+  --p-surface-border: #334155;
+  --p-text-color: #f9fafb;
+  --p-text-muted-color: #9ca3af;
 }
 
 *,
@@ -97,9 +101,7 @@ a:hover {
 }
 
 /* Dialog backdrop */
-.p-dialog-mask {
-  backdrop-filter: blur(4px);
-}
+
 
 /* ===== Utility Classes ===== */
 .w-full {
@@ -191,6 +193,35 @@ a:hover {
 }
 
 .p-dialog-mask {
-  backdrop-filter: blur(8px);
   background: rgba(15, 23, 42, 0.4);
+}
+
+/* Fix Dialog Corners */
+.p-dialog {
+  border-radius: 20px !important;
+  border: 1px solid var(--p-surface-border) !important;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+}
+
+.p-dialog .p-dialog-header {
+  border-top-left-radius: 20px !important;
+  border-top-right-radius: 20px !important;
+  background: var(--p-surface-card) !important;
+  color: var(--p-text-color) !important;
+  padding: 1.5rem 1.5rem 0.5rem 1.5rem !important;
+}
+
+.p-dialog .p-dialog-content {
+  background: var(--p-surface-card) !important;
+  color: var(--p-text-color) !important;
+  padding: 0 1.5rem 2rem 1.5rem !important;
+  border-bottom-left-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+}
+
+.p-dialog .p-dialog-footer {
+  background: var(--p-surface-card) !important;
+  border-bottom-left-radius: 20px !important;
+  border-bottom-right-radius: 20px !important;
+  padding: 1rem 1.5rem !important;
 }

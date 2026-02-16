@@ -162,13 +162,13 @@ import { forkJoin } from 'rxjs';
     }
 
     .summary-card-mm {
-      background: white;
+      background: var(--p-surface-card);
       border-radius: 20px;
       padding: 1.25rem 1.5rem;
       display: flex;
       align-items: center;
       gap: 1.25rem;
-      border: 1px solid #f1f5f9;
+      border: 1px solid var(--p-surface-border);
       box-shadow: 0 1px 2px rgba(0,0,0,0.02);
     }
 
@@ -187,8 +187,8 @@ import { forkJoin } from 'rxjs';
     .expense-box { background: #fafafa; color: #64748b; }
 
     .info-mm { display: flex; flex-direction: column; gap: 0.1rem; }
-    .label-mm { font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-    .value-mm { font-size: 1.5rem; font-weight: 800; color: #1e293b; }
+    .label-mm { font-size: 0.7rem; color: var(--p-text-muted-color); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+    .value-mm { font-size: 1.5rem; font-weight: 800; color: var(--p-text-color); }
 
     .charts-grid-mm {
       display: grid;
@@ -197,11 +197,11 @@ import { forkJoin } from 'rxjs';
     }
 
     .block-card-mm {
-      background: white;
+      background: var(--p-surface-card);
       border-radius: 28px;
       padding: 1.75rem;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      border: 1px solid #f1f5f9;
+      border: 1px solid var(--p-surface-border);
     }
 
     .block-header-mm {
@@ -210,7 +210,7 @@ import { forkJoin } from 'rxjs';
       align-items: center;
       margin-bottom: 1.5rem;
     }
-    .block-header-mm h3 { font-size: 0.95rem; font-weight: 800; color: #334155; margin: 0; display: flex; align-items: center; gap: 0.6rem; }
+    .block-header-mm h3 { font-size: 0.95rem; font-weight: 800; color: var(--p-text-color); margin: 0; display: flex; align-items: center; gap: 0.6rem; }
 
     .chart-container-mm { width: 100%; height: 280px; }
 
@@ -227,8 +227,8 @@ import { forkJoin } from 'rxjs';
       align-items: center;
       pointer-events: none;
     }
-    .center-label { font-size: 0.65rem; font-weight: 700; color: #94a3b8; text-transform: uppercase; }
-    .center-val { font-size: 1.1rem; font-weight: 800; color: #1e293b; }
+    .center-label { font-size: 0.65rem; font-weight: 700; color: var(--p-text-muted-color); text-transform: uppercase; }
+    .center-val { font-size: 1.1rem; font-weight: 800; color: var(--p-text-color); }
 
     .doughnut-custom-legend { display: flex; gap: 1rem; }
     .leg-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.7rem; font-weight: 700; color: #94a3b8; }
@@ -243,17 +243,17 @@ import { forkJoin } from 'rxjs';
     }
 
     .more-btn {
-      background: #f8fafc;
-      border: 1px solid #f1f5f9;
+      background: var(--p-surface-ground);
+      border: 1px solid var(--p-surface-border);
       padding: 0.3rem 0.75rem;
       border-radius: 8px;
       font-size: 0.65rem;
       font-weight: 700;
-      color: #94a3b8;
+      color: var(--p-text-muted-color);
       cursor: pointer;
       transition: all 0.2s;
     }
-    .more-btn:hover { background: #f1f5f9; color: #1e293b; }
+    .more-btn:hover { background: var(--p-surface-border); color: var(--p-text-color); }
 
     .mm-empty-small { height: 160px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 0.85rem; }
 
@@ -261,10 +261,16 @@ import { forkJoin } from 'rxjs';
       border: none !important;
       padding: 1rem 0 !important;
       font-size: 0.9rem;
+      background: var(--p-surface-card) !important;
+      color: var(--p-text-color) !important;
     }
 
-    .mini-rowValue:hover { background: #fbfcfe; }
-    .desc-mm { font-weight: 700; color: #334155; }
+    .no-border-table :host ::ng-deep .p-datatable-tbody > tr {
+      background: var(--p-surface-card) !important;
+    }
+
+    .mini-rowValue:hover { background: var(--p-surface-ground); }
+    .desc-mm { font-weight: 700; color: var(--p-text-color); }
 
     .text-right { text-align: right; }
     .text-brand { color: #6B21A8; }

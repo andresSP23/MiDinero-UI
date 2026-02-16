@@ -69,8 +69,8 @@ import { ConfirmationService } from 'primeng/api';
       left: 1rem;
       bottom: 1rem;
       width: 260px;
-      background: #ffffff;
-      border: 1px solid #f1f5f9;
+      background: var(--p-surface-card);
+      border: 1px solid var(--p-surface-border);
       border-radius: 24px;
       display: flex;
       flex-direction: column;
@@ -94,13 +94,13 @@ import { ConfirmationService } from 'primeng/api';
 
     .sidebar-logo {
       font-size: 2rem;
-      color: #7e22ce;
+      color: var(--p-primary-color);
     }
 
     .sidebar-title {
       font-size: 1.4rem;
       font-weight: 800;
-      color: #111827;
+      color: var(--p-text-color);
       letter-spacing: -0.03em;
     }
 
@@ -118,7 +118,7 @@ import { ConfirmationService } from 'primeng/api';
       gap: 1rem;
       padding: 0.85rem 1rem;
       border-radius: 14px;
-      color: #64748b;
+      color: var(--p-text-muted-color);
       text-decoration: none;
       font-weight: 700;
       font-size: 0.9rem;
@@ -133,13 +133,13 @@ import { ConfirmationService } from 'primeng/api';
     }
 
     .nav-item:hover {
-      background: #f8fafc;
-      color: #111827;
+      background: var(--p-surface-ground);
+      color: var(--p-text-color);
     }
 
     .nav-item.active {
-      background: #f3e8ff;
-      color: #7e22ce;
+      background: var(--p-money-bg-purple);
+      color: var(--p-money-purple);
     }
 
     .sidebar-footer {
@@ -154,8 +154,8 @@ import { ConfirmationService } from 'primeng/api';
       align-items: center;
       gap: 0.75rem;
       padding: 0.75rem;
-      background: #f8fafc;
-      border: 1px solid #f1f5f9;
+      background: var(--p-surface-ground);
+      border: 1px solid var(--p-surface-border);
       border-radius: 16px;
     }
 
@@ -163,7 +163,7 @@ import { ConfirmationService } from 'primeng/api';
       width: 36px;
       height: 36px;
       border-radius: 10px;
-      background: #6B21A8;
+      background: var(--p-money-purple);
       color: white;
       display: flex;
       align-items: center;
@@ -181,7 +181,7 @@ import { ConfirmationService } from 'primeng/api';
     .user-name {
       font-weight: 800;
       font-size: 0.85rem;
-      color: #111827;
+      color: var(--p-text-color);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -189,7 +189,7 @@ import { ConfirmationService } from 'primeng/api';
 
     .user-email {
       font-size: 0.7rem;
-      color: #64748b;
+      color: var(--p-text-muted-color);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;

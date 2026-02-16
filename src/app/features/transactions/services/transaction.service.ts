@@ -42,4 +42,9 @@ export class TransactionService {
     delete(id: number): Observable<void> {
         return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
     }
+
+    exportToExcel(type?: 'INCOME' | 'EXPENSE'): Observable<Blob> {
+        const endpoint = type === 'INCOME' ? 'export/incomes' : 'export/expenses';
+        return this.http.get(`${environment.apiUrl}/dashboard/${endpoint}`, { responseType: 'blob' });
+    }
 }

@@ -86,7 +86,7 @@ import { Category } from '../../../core/models/category.model';
     }
 
     .title-group { display: flex; align-items: center; gap: 1rem; }
-    .title-group h2 { font-size: 1.5rem; font-weight: 800; color: #111827; margin: 0; }
+    .title-group h2 { font-size: 1.5rem; font-weight: 800; color: var(--p-text-color); margin: 0; }
 
     .badge-mm {
       padding: 0.25rem 0.75rem;
@@ -115,11 +115,11 @@ import { Category } from '../../../core/models/category.model';
     .action-btn-mm.danger:hover { background: #581c87; }
 
     .block-card-mm {
-      background: white;
+      background: var(--p-surface-card);
       border-radius: 24px;
       padding: 2rem;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid #f3f4f6;
+      border: 1px solid var(--p-surface-border);
     }
 
     .block-header-mm {
@@ -128,7 +128,7 @@ import { Category } from '../../../core/models/category.model';
       align-items: center;
       margin-bottom: 2rem;
     }
-    .block-header-mm h3 { font-size: 1.1rem; font-weight: 800; color: #111827; margin: 0; display: flex; align-items: center; gap: 0.75rem; }
+    .block-header-mm h3 { font-size: 1.1rem; font-weight: 800; color: var(--p-text-color); margin: 0; display: flex; align-items: center; gap: 0.75rem; }
 
     .chart-wrapper { width: 100%; height: 300px; }
     .mb-4 { margin-bottom: 1.5rem; }

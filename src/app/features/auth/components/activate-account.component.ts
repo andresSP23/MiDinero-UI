@@ -4,151 +4,305 @@ import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { AuthService } from '../services/auth.service';
+import { InputTextModule } from 'primeng/inputtext';
+import { FormsModule } from '@angular/forms';
 
 @Component({
-    selector: 'app-activate-account',
-    imports: [CommonModule, RouterLink, ButtonModule, ProgressSpinnerModule],
-    template: `
-    <div class="auth-container">
-      <div class="auth-card">
-        <div class="auth-header">
-          <i class="pi pi-wallet auth-logo"></i>
+  selector: 'app-activate-account',
+  standalone: true,
+  imports: [CommonModule, RouterLink, ButtonModule, ProgressSpinnerModule, InputTextModule, FormsModule],
+  template: `
+    <div class="auth-container-mm">
+      <div class="auth-card-mm">
+        <div class="auth-header-mm">
+          <div class="logo-box-mm">
+            <i class="pi pi-wallet"></i>
+          </div>
           <h1>MiDinero</h1>
+          <p>Activación de cuenta</p>
         </div>
-
+ 
         @if (loading()) {
-          <div class="activate-status">
-            <p-progressSpinner strokeWidth="4" />
+          <div class="status-box-mm">
+            <p-progressSpinner strokeWidth="4" fill="transparent" />
             <p>Activando tu cuenta...</p>
           </div>
         } @else if (success()) {
-          <div class="activate-status">
-            <i class="pi pi-check-circle status-icon success"></i>
+          <div class="status-box-mm success">
+            <div class="status-icon-box success">
+              <i class="pi pi-check-circle"></i>
+            </div>
             <h3>¡Cuenta activada!</h3>
-            <p>Tu cuenta ha sido activada exitosamente. Ya puedes iniciar sesión.</p>
-            <p-button
-              label="Iniciar Sesión"
-              icon="pi pi-sign-in"
+            <p>Tu cuenta ha sido activada exitosamente. Ya puedes iniciar sesión y empezar a gestionar tus finanzas.</p>
+            <button
+              class="btn-mm-pri w-full-mm"
               routerLink="/login"
-              styleClass="w-full"
-            />
+            >
+              <i class="pi pi-sign-in mr-2"></i> Iniciar Sesión
+            </button>
           </div>
         } @else {
-          <div class="activate-status">
-            <i class="pi pi-times-circle status-icon error"></i>
-            <h3>Error de activación</h3>
-            <p>{{ errorMessage() }}</p>
-            <p-button
-              label="Volver al inicio"
-              icon="pi pi-home"
-              routerLink="/login"
-              severity="secondary"
-              styleClass="w-full"
-            />
+          <div class="status-box-mm">
+            @if (errorMessage()) {
+              <div class="status-icon-box error">
+                <i class="pi pi-exclamation-circle"></i>
+              </div>
+              <h3>MeyDay</h3>
+              <p>{{ errorMessage() }}</p>
+            } @else {
+              <p class="instr-mm">Ingresa el código de activación que enviamos a tu correo electrónico.</p>
+            }
+ 
+            <div class="form-field-mm text-left-mm">
+              <label for="token">Código de Activación</label>
+              <div class="input-wrapper-mm">
+                <i class="pi pi-key"></i>
+                <input
+                  pInputText
+                  id="token"
+                  [(ngModel)]="manualToken"
+                  placeholder="Ej: 123456"
+                  class="w-full-mm"
+                  (keyup.enter)="onActivate()"
+                />
+              </div>
+            </div>
+ 
+            <button
+              class="btn-mm-pri w-full-mm mt-4"
+              (click)="onActivate()"
+              [disabled]="!manualToken || loading()"
+            >
+              @if (loading()) {
+                <i class="pi pi-spin pi-spinner mr-2"></i> Procesando...
+              } @else {
+                <i class="pi pi-verified mr-2"></i> Activar Cuenta
+              }
+            </button>
+ 
+            <div class="auth-footer-mm">
+              <a routerLink="/login">Volver al inicio</a>
+            </div>
           </div>
         }
       </div>
     </div>
   `,
-    styles: [`
-    .auth-container {
+  styles: [`
+    .auth-container-mm {
+      position: relative;
       display: flex;
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      background: var(--p-surface-ground);
-      padding: 1rem;
+      padding: 1.5rem;
+      overflow: hidden;
     }
 
-    .auth-card {
-      background: var(--p-surface-card);
-      border: 1px solid var(--p-surface-border);
-      border-radius: 16px;
-      padding: 2.5rem;
+    .auth-container-mm::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('/assets/img/pexels-karola-g-4386442.webp');
+      background-size: cover;
+      background-position: center;
+      filter: blur(5px);
+      transform: scale(1.05);
+      z-index: 0;
+    }
+
+    .auth-card-mm {
+      position: relative;
+      z-index: 1;
+      background: white;
+      border: 1px solid #f1f5f9;
+      border-radius: 28px;
+      padding: 3rem 2.5rem;
       width: 100%;
-      max-width: 420px;
-      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+      max-width: 440px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.03);
     }
-
-    .auth-header {
+ 
+    .auth-header-mm {
       text-align: center;
       margin-bottom: 2rem;
     }
-
-    .auth-logo {
-      font-size: 3rem;
-      color: var(--p-primary-color);
+ 
+    .logo-box-mm {
+      width: 64px;
+      height: 64px;
+      background: #f5f3ff;
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
     }
-
-    .auth-header h1 {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: var(--p-text-color);
-      margin: 0.5rem 0 0;
+ 
+    .logo-box-mm i {
+      font-size: 2rem;
+      color: #6B21A8;
     }
-
-    .activate-status {
+ 
+    .auth-header-mm h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #111827;
+      margin: 0;
+      letter-spacing: -0.04em;
+    }
+ 
+    .auth-header-mm p {
+      color: #64748b;
+      margin-top: 0.5rem;
+      font-size: 0.95rem;
+    }
+ 
+    .status-box-mm {
       text-align: center;
       padding: 1rem 0;
     }
-
-    .status-icon {
-      font-size: 4rem;
+ 
+    .status-icon-box {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      font-size: 2.5rem;
+    }
+ 
+    .status-icon-box.success { background: #ecfdf5; color: #059669; }
+    .status-icon-box.error { background: #fee2e2; color: #dc2626; }
+ 
+    .status-box-mm h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #111827;
+      margin-bottom: 0.75rem;
+    }
+ 
+    .status-box-mm p {
+      color: #64748b;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+    }
+ 
+    .instr-mm {
+      font-size: 0.9rem;
+      color: #64748b;
+      margin-bottom: 2rem !important;
+    }
+ 
+    .form-field-mm {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
       margin-bottom: 1rem;
     }
-
-    .status-icon.success {
-      color: var(--p-green-500);
+ 
+    .text-left-mm { text-align: left; }
+ 
+    .form-field-mm label {
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #475569;
+      margin-left: 0.25rem;
     }
-
-    .status-icon.error {
-      color: var(--p-red-500);
+ 
+    .input-wrapper-mm {
+      position: relative;
+      display: flex;
+      align-items: center;
     }
-
-    .activate-status h3 {
-      color: var(--p-text-color);
-      margin: 0 0 0.75rem;
+ 
+    .input-wrapper-mm i {
+      position: absolute;
+      left: 1rem;
+      color: #94a3b8;
+      z-index: 10;
+      font-size: 1rem;
     }
-
-    .activate-status p {
-      color: var(--p-text-muted-color);
-      margin: 0 0 1.5rem;
-      line-height: 1.5;
+ 
+    .input-wrapper-mm input {
+      padding-left: 2.75rem !important;
+      height: 50px;
+      border-radius: 14px !important;
+      border: 1px solid #e2e8f0 !important;
+      background: #f8fafc !important;
+      font-weight: 500;
+      transition: all 0.2s;
     }
-
-    .w-full {
-      width: 100%;
+ 
+    .input-wrapper-mm input:focus {
+      border-color: #6B21A8 !important;
+      background: white !important;
+      box-shadow: 0 0 0 4px rgba(107, 33, 168, 0.05) !important;
     }
+ 
+    .w-full-mm { width: 100%; }
+    .mt-4 { margin-top: 1rem; }
+    .mr-2 { margin-right: 0.5rem; }
+ 
+    .auth-footer-mm {
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #f1f5f9;
+    }
+ 
+    .auth-footer-mm a {
+      color: #64748b;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-decoration: none;
+    }
+ 
+    .auth-footer-mm a:hover { color: #6B21A8; }
   `]
 })
 export class ActivateAccountComponent implements OnInit {
-    loading = signal(true);
-    success = signal(false);
-    errorMessage = signal('No se pudo activar la cuenta. El enlace puede haber expirado.');
+  loading = signal(false);
+  success = signal(false);
+  errorMessage = signal('');
+  manualToken = '';
 
-    constructor(
-        private route: ActivatedRoute,
-        private authService: AuthService
-    ) { }
+  constructor(
+    private route: ActivatedRoute,
+    private authService: AuthService
+  ) { }
 
-    ngOnInit(): void {
-        const token = this.route.snapshot.queryParamMap.get('token');
-
-        if (!token) {
-            this.loading.set(false);
-            this.errorMessage.set('Token de activación no proporcionado.');
-            return;
-        }
-
-        this.authService.activateAccount(token).subscribe({
-            next: () => {
-                this.loading.set(false);
-                this.success.set(true);
-            },
-            error: () => {
-                this.loading.set(false);
-                this.success.set(false);
-            }
-        });
+  ngOnInit(): void {
+    const token = this.route.snapshot.queryParamMap.get('token');
+    if (token) {
+      this.activate(token);
     }
+  }
+
+  onActivate(): void {
+    if (this.manualToken) {
+      this.activate(this.manualToken);
+    }
+  }
+
+  private activate(token: string): void {
+    this.loading.set(true);
+    this.errorMessage.set('');
+
+    this.authService.activateAccount(token).subscribe({
+      next: () => {
+        this.loading.set(false);
+        this.success.set(true);
+      },
+      error: () => {
+        this.loading.set(false);
+        this.success.set(false);
+        this.errorMessage.set('El código ingresado no es válido o ha expirado. Por favor, inténtalo de nuevo.');
+      }
+    });
+  }
 }

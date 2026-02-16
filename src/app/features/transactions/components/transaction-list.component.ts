@@ -30,15 +30,21 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
   providers: [ConfirmationService],
   template: `
     <div class="transaction-container-mm">
-      @if (!filterType()) {
+      @if (filterType()) {
         <div class="page-header-mm">
           <div class="title-group">
-            <h2>Transacciones</h2>
-            <p class="subtitle-mm">Historial completo de tus movimientos</p>
+            <h2>{{ filterType() === 'INCOME' ? 'Ingresos' : 'Gastos' }}</h2>
+            <p class="subtitle-mm">Gestión de tus {{ filterType() === 'INCOME' ? 'entradas' : 'salidas' }} de dinero</p>
           </div>
-          <button class="action-btn-mm premium" (click)="openDialog()">
-            <i class="pi pi-plus"></i> Nueva Transacción
-          </button>
+          <div class="actions-group">
+            <button class="action-btn-mm sec" (click)="exportToExcel()" [disabled]="exporting()">
+              <i class="pi" [class]="exporting() ? 'pi-spin pi-spinner' : 'pi-file-excel'"></i> 
+              {{ exporting() ? 'Exportando...' : 'Exportar Excel' }}
+            </button>
+            <button class="action-btn-mm premium" (click)="openDialog()">
+              <i class="pi pi-plus"></i> Nueva Transacción
+            </button>
+          </div>
         </div>
       }
 
@@ -133,9 +139,11 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
       align-items: center;
       margin-bottom: 2rem;
     }
+ 
+    .actions-group { display: flex; gap: 0.75rem; }
 
-    .title-group h2 { font-size: 1.5rem; font-weight: 800; color: #111827; margin: 0; }
-    .subtitle-mm { color: #64748b; font-size: 0.85rem; margin-top: 0.25rem; }
+    .title-group h2 { font-size: 1.5rem; font-weight: 800; color: var(--p-text-color); margin: 0; }
+    .subtitle-mm { color: var(--p-text-muted-color); font-size: 0.85rem; margin-top: 0.25rem; }
 
     .action-btn-mm {
       border: none;
@@ -151,22 +159,24 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
     }
     .action-btn-mm.premium { background: #6B21A8; color: white; box-shadow: 0 4px 12px rgba(107, 33, 168, 0.2); }
     .action-btn-mm.premium:hover { background: #581c87; }
-    .action-btn-mm:hover { transform: translateY(-1px); background: #581c87; }
+    .action-btn-mm.sec { background: var(--p-surface-card); color: var(--p-text-color); border: 1px solid var(--p-surface-border); }
+    .action-btn-mm.sec:hover { background: var(--p-surface-ground); border-color: var(--p-text-muted-color); }
+    .action-btn-mm:hover { transform: translateY(-1px); }
 
     .block-card-mm {
-      background: white;
+      background: var(--p-surface-card);
       border-radius: 20px;
       padding: 1.5rem;
       box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid #f3f4f6;
+      border: 1px solid var(--p-surface-border);
     }
 
     .table-card-mm { padding: 0.5rem; }
 
     :host ::ng-deep .mm-table .p-datatable-thead > tr > th {
-      background: white !important;
-      border-bottom: 2px solid #f8fafc !important;
-      color: #94a3b8 !important;
+      background: var(--p-surface-card) !important;
+      border-bottom: 2px solid var(--p-surface-border) !important;
+      color: var(--p-text-muted-color) !important;
       font-size: 0.75rem !important;
       font-weight: 800 !important;
       text-transform: uppercase;
@@ -175,13 +185,18 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
     }
 
     :host ::ng-deep .mm-table .p-datatable-tbody > tr > td {
-      border-bottom: 1px solid #f8fafc !important;
+      border-bottom: 1px solid var(--p-surface-border) !important;
       padding: 1rem !important;
       font-size: 0.9rem;
-      color: #1e293b;
+      color: var(--p-text-color);
+      background: var(--p-surface-card) !important;
     }
 
-    .mm-row:hover { background: #fbfcfe !important; }
+    :host ::ng-deep .mm-table .p-datatable-tbody > tr {
+      background: var(--p-surface-card) !important;
+    }
+
+    .mm-row:hover { background: var(--p-surface-ground) !important; }
 
     .cat-pill {
       background: #f3e8ff;
@@ -211,22 +226,22 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
       width: 28px;
       height: 28px;
       border-radius: 6px;
-      border: 1px solid #f1f5f9;
-      background: #f8fafc;
-      color: #64748b;
+      border: 1px solid var(--p-surface-border);
+      background: var(--p-surface-ground);
+      color: var(--p-text-muted-color);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       transition: all 0.2s;
     }
-    .mini-icon-btn:hover { background: #f1f5f9; color: #111827; }
+    .mini-icon-btn:hover { background: var(--p-surface-border); color: var(--p-text-color); }
     .mini-icon-btn.delete:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
 
     .mm-empty-row { text-align: center; padding: 3rem !important; color: #94a3b8; font-style: italic; }
 
     .date-cell { color: #64748b !important; font-weight: 600; }
-    .desc-cell { font-weight: 700; color: #1e293b; }
+    .desc-cell { font-weight: 700; color: var(--p-text-color); }
   `]
 })
 export class TransactionListComponent implements OnInit {
@@ -237,6 +252,7 @@ export class TransactionListComponent implements OnInit {
   categories = signal<Category[]>([]);
   selectedTransaction = signal<Transaction | null>(null);
   dialogVisible = false;
+  exporting = signal(false);
 
   pageSize = 10;
   skeletonRows = [1, 2, 3, 4, 5];
@@ -335,4 +351,31 @@ export class TransactionListComponent implements OnInit {
       }
     });
   }
+
+  exportToExcel() {
+    this.exporting.set(true);
+    const type = this.filterType();
+
+    this.transactionService.exportToExcel(type || undefined).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const dateStr = new Date().toISOString().split('T')[0];
+        const fileName = `Transacciones_${type || 'ALL'}_${dateStr}.xlsx`;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.exporting.set(false);
+        this.messageService.add({ severity: 'success', summary: 'Exportación completada', detail: 'El archivo se ha descargado correctamente' });
+      },
+      error: () => {
+        this.exporting.set(false);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo exportar el archivo' });
+      }
+    });
+  }
 }
+
