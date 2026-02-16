@@ -1,1 +1,91 @@
-/* You can add global styles to this file, and also import other style files */
+/* PrimeIcons */
+@import 'primeicons/primeicons.css';
+
+/* Google Fonts - Inter */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+/* ===== Global Reset & Base ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: var(--p-surface-ground);
+  color: var(--p-text-color);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--p-surface-300);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--p-surface-400);
+}
+
+/* ===== Links ===== */
+a {
+  color: var(--p-primary-color);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ===== PrimeNG Overrides for polish ===== */
+
+/* Smooth table transitions */
+.p-datatable .p-datatable-tbody > tr {
+  transition: background 0.15s ease;
+}
+
+/* Card hover effect */
+.p-card {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+/* Dialog backdrop */
+.p-dialog-mask {
+  backdrop-filter: blur(4px);
+}
+
+/* ===== Utility Classes ===== */
+.w-full {
+  width: 100%;
+}
+
+.text-center {
+  text-align: center;
+}
+
+/* ===== Responsive typography ===== */
+@media (max-width: 768px) {
+  html {
+    font-size: 14px;
+  }
+}
