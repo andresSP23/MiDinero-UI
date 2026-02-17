@@ -94,7 +94,7 @@ import { ConfirmationService } from 'primeng/api';
 
     .sidebar-logo {
       font-size: 2rem;
-      color: var(--p-primary-color);
+      color: #6B21A8; /* Solid Brand Purple */
     }
 
     .sidebar-title {

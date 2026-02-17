@@ -1,4 +1,6 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ViewChild, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ChartOptions, ChartData } from 'chart.js';
 import { CommonModule } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -15,6 +17,7 @@ import { Category } from '../../../core/models/category.model';
 @Component({
   selector: 'app-income-page',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ChartModule,
@@ -136,12 +139,12 @@ import { Category } from '../../../core/models/category.model';
 })
 export class IncomePageComponent implements OnInit {
   dialogVisible = false;
-  chartData = signal<any>(null);
+  chartData = signal<ChartData | null>(null);
   loadingChart = signal(true);
   categories = signal<Category[]>([]);
   selectedTransaction = signal<Transaction | null>(null);
 
-  chartOptions: any = {
+  chartOptions: ChartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
@@ -150,15 +153,15 @@ export class IncomePageComponent implements OnInit {
     scales: {
       x: {
         grid: { display: false },
-        ticks: { color: '#6b7280', font: { weight: '600', size: 11 } }
+        ticks: { color: '#6b7280', font: { weight: 'bold', size: 11 } }
       },
       y: {
         beginAtZero: true,
         grid: { color: '#f8fafc', drawTicks: false },
         ticks: {
           color: '#94a3b8',
-          font: { weight: '600', size: 10 },
-          callback: (value: number) => `$${value}`
+          font: { weight: 'bold', size: 10 },
+          callback: (value) => `$${value}`
         }
       }
     }
@@ -168,6 +171,9 @@ export class IncomePageComponent implements OnInit {
   private transactionService = inject(TransactionService);
   private categoryService = inject(CategoryService);
   private messageService = inject(MessageService);
+  private destroyRef = inject(DestroyRef);
+
+  @ViewChild('list') list!: TransactionListComponent;
 
   ngOnInit() {
     this.loadChart();
@@ -175,9 +181,11 @@ export class IncomePageComponent implements OnInit {
   }
 
   loadCategories() {
-    this.categoryService.getAll(0, 100).subscribe({
-      next: res => this.categories.set(res.content)
-    });
+    this.categoryService.getAll(0, 100)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => this.categories.set(res.content)
+      });
   }
 
   loadChart() {
@@ -188,28 +196,30 @@ export class IncomePageComponent implements OnInit {
     this.dashboardService.getDailyIncome(
       from.toISOString().split('T')[0],
       to.toISOString().split('T')[0]
-    ).subscribe({
-      next: (data) => {
-        const labels = data.chart.map(e => {
-          const parts = e.date.split('-');
-          return `${parts[2]}/${parts[1]}`;
-        });
-        const values = data.chart.map(e => e.total);
+    )
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (data) => {
+          const labels = data.chart.map(e => {
+            const parts = e.date.split('-');
+            return `${parts[2]}/${parts[1]}`;
+          });
+          const values = data.chart.map(e => e.total);
 
-        this.chartData.set({
-          labels,
-          datasets: [{
-            label: 'Ingresos',
-            data: values,
-            backgroundColor: '#6B21A8',
-            borderRadius: 6,
-            barThickness: 14
-          }]
-        });
-        this.loadingChart.set(false);
-      },
-      error: () => this.loadingChart.set(false)
-    });
+          this.chartData.set({
+            labels,
+            datasets: [{
+              label: 'Ingresos',
+              data: values,
+              backgroundColor: '#6B21A8',
+              borderRadius: 6,
+              barThickness: 14
+            }]
+          });
+          this.loadingChart.set(false);
+        },
+        error: () => this.loadingChart.set(false)
+      });
   }
 
   openDialog() {
@@ -217,18 +227,20 @@ export class IncomePageComponent implements OnInit {
   }
 
   onSave(request: TransactionRequest) {
-    this.transactionService.create(request).subscribe({
-      next: () => {
-        this.dialogVisible = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: 'Ingreso registrado correctamente',
-          life: 3000
-        });
-        this.loadChart();
-        window.location.reload();
-      }
-    });
+    this.transactionService.create(request)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.dialogVisible = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: 'Ingreso registrado correctamente',
+            life: 3000
+          });
+          this.loadChart();
+          this.list.refresh();
+        }
+      });
   }
 }

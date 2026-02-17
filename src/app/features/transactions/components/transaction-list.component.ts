@@ -1,4 +1,5 @@
-import { Component, OnInit, signal, input, inject } from '@angular/core';
+import { Component, OnInit, signal, input, inject, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TableModule } from 'primeng/table';
@@ -16,6 +17,7 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
 @Component({
   selector: 'app-transaction-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     CurrencyPipe,
@@ -173,31 +175,6 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
 
     .table-card-mm { padding: 0.5rem; }
 
-    :host ::ng-deep .mm-table .p-datatable-thead > tr > th {
-      background: var(--p-surface-card) !important;
-      border-bottom: 2px solid var(--p-surface-border) !important;
-      color: var(--p-text-muted-color) !important;
-      font-size: 0.75rem !important;
-      font-weight: 800 !important;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding: 1.25rem 1rem !important;
-    }
-
-    :host ::ng-deep .mm-table .p-datatable-tbody > tr > td {
-      border-bottom: 1px solid var(--p-surface-border) !important;
-      padding: 1rem !important;
-      font-size: 0.9rem;
-      color: var(--p-text-color);
-      background: var(--p-surface-card) !important;
-    }
-
-    :host ::ng-deep .mm-table .p-datatable-tbody > tr {
-      background: var(--p-surface-card) !important;
-    }
-
-    .mm-row:hover { background: var(--p-surface-ground) !important; }
-
     .cat-pill {
       background: #f3e8ff;
       color: #6b21a8;
@@ -263,6 +240,7 @@ export class TransactionListComponent implements OnInit {
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
   private route = inject(ActivatedRoute);
+  private destroyRef = inject(DestroyRef);
 
   ngOnInit(): void {
     this.loadCategories();
@@ -272,10 +250,16 @@ export class TransactionListComponent implements OnInit {
     }
   }
 
+  refresh() {
+    this.loadTransactions({ first: 0, rows: this.pageSize });
+  }
+
   loadCategories(): void {
-    this.categoryService.getAll(0, 100).subscribe({
-      next: res => this.categories.set(res.content)
-    });
+    this.categoryService.getAll(0, 100)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => this.categories.set(res.content)
+      });
   }
 
   loadTransactions(event: any): void {
@@ -287,14 +271,16 @@ export class TransactionListComponent implements OnInit {
 
     const type = this.filterType() || undefined;
 
-    this.transactionService.getAll(page, event.rows, sort, type).subscribe({
-      next: res => {
-        this.transactions.set(res.content);
-        this.totalRecords.set(res.totalElements);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false)
-    });
+    this.transactionService.getAll(page, event.rows, sort, type)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: res => {
+          this.transactions.set(res.content);
+          this.totalRecords.set(res.totalElements);
+          this.loading.set(false);
+        },
+        error: () => this.loading.set(false)
+      });
   }
 
   openDialog(): void {
@@ -313,18 +299,19 @@ export class TransactionListComponent implements OnInit {
       ? this.transactionService.update(selected.id, request)
       : this.transactionService.create(request);
 
-    obs.subscribe({
-      next: () => {
-        this.dialogVisible = false;
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Éxito',
-          detail: selected ? 'Transacción actualizada' : 'Transacción creada',
-          life: 3000
-        });
-        this.loadTransactions({ first: 0, rows: this.pageSize });
-      }
-    });
+    obs.pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.dialogVisible = false;
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Éxito',
+            detail: selected ? 'Transacción actualizada' : 'Transacción creada',
+            life: 3000
+          });
+          this.loadTransactions({ first: 0, rows: this.pageSize });
+        }
+      });
   }
 
   confirmDelete(tx: Transaction): void {
@@ -337,17 +324,19 @@ export class TransactionListComponent implements OnInit {
       acceptButtonStyleClass: 'btn-mm-pri',
       rejectButtonStyleClass: 'btn-mm-sec',
       accept: () => {
-        this.transactionService.delete(tx.id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Eliminado',
-              detail: 'Transacción eliminada correctamente',
-              life: 3000
-            });
-            this.loadTransactions({ first: 0, rows: this.pageSize });
-          }
-        });
+        this.transactionService.delete(tx.id)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe({
+            next: () => {
+              this.messageService.add({
+                severity: 'success',
+                summary: 'Eliminado',
+                detail: 'Transacción eliminada correctamente',
+                life: 3000
+              });
+              this.loadTransactions({ first: 0, rows: this.pageSize });
+            }
+          });
       }
     });
   }
@@ -356,26 +345,28 @@ export class TransactionListComponent implements OnInit {
     this.exporting.set(true);
     const type = this.filterType();
 
-    this.transactionService.exportToExcel(type || undefined).subscribe({
-      next: (blob) => {
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        const dateStr = new Date().toISOString().split('T')[0];
-        const fileName = `Transacciones_${type || 'ALL'}_${dateStr}.xlsx`;
-        a.download = fileName;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-        this.exporting.set(false);
-        this.messageService.add({ severity: 'success', summary: 'Exportación completada', detail: 'El archivo se ha descargado correctamente' });
-      },
-      error: () => {
-        this.exporting.set(false);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo exportar el archivo' });
-      }
-    });
+    this.transactionService.exportToExcel(type || undefined)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (blob) => {
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          const dateStr = new Date().toISOString().split('T')[0];
+          const fileName = `Transacciones_${type || 'ALL'}_${dateStr}.xlsx`;
+          a.download = fileName;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(url);
+          this.exporting.set(false);
+          this.messageService.add({ severity: 'success', summary: 'Exportación completada', detail: 'El archivo se ha descargado correctamente' });
+        },
+        error: () => {
+          this.exporting.set(false);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'No se pudo exportar el archivo' });
+        }
+      });
   }
 }
 

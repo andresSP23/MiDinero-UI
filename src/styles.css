@@ -225,3 +225,272 @@ a:hover {
   border-bottom-right-radius: 20px !important;
   padding: 1rem 1.5rem !important;
 }
+
+/* ===== Extracted Component Styles (Money Manager Theme) ===== */
+
+/* Form Inputs & Selects */
+.mm-input {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  transition: border-color 0.2s;
+  background: #f8fafc;
+  color: var(--p-text-color);
+}
+
+.mm-input:focus {
+  border-color: #6B21A8;
+  box-shadow: none;
+  background: white;
+  outline: none;
+}
+
+.mm-select {
+  width: 100%;
+  background: #f8fafc;
+  border: 1.5px solid #f1f5f9;
+  border-radius: 12px;
+  padding: 0.25rem 0.5rem;
+}
+
+.mm-select:not(.p-disabled).p-focus {
+  border-color: #6B21A8;
+  box-shadow: none;
+}
+
+/* Dialog Header/Content Overrides */
+.mm-dialog .p-dialog-header {
+  padding: 1.5rem 1.5rem 0.5rem !important;
+  border: none !important;
+  background: white !important;
+}
+
+.mm-dialog .p-dialog-content {
+  padding: 1rem 1.5rem !important;
+  background: white !important;
+}
+
+.mm-dialog .p-dialog-footer {
+  padding: 1.5rem !important;
+  border: none !important;
+  background: white !important;
+}
+
+/* Data Table Styles */
+.mm-table .p-datatable-thead>tr>th {
+  background: var(--p-surface-card) !important;
+  border-bottom: 2px solid var(--p-surface-border) !important;
+  color: var(--p-text-muted-color) !important;
+  font-size: 0.75rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1.25rem 1rem !important;
+}
+
+.mm-table .p-datatable-tbody>tr>td {
+  border-bottom: 1px solid var(--p-surface-border) !important;
+  padding: 1rem !important;
+  font-size: 0.9rem;
+  color: var(--p-text-color);
+  background: var(--p-surface-card) !important;
+}
+
+.mm-table .p-datatable-tbody>tr {
+  background: var(--p-surface-card) !important;
+}
+
+.mm-table .p-datatable-tbody>tr:hover {
+  background: var(--p-surface-ground) !important;
+}
+
+.mm-row:hover {
+  background: var(--p-surface-ground) !important;
+}
+
+/* ===== Missing Utility Classes ===== */
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}
+
+.mb-4 {
+  margin-bottom: 1rem !important;
+}
+
+.mb-5 {
+  margin-bottom: 1.25rem !important;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem !important;
+}
+
+.mb-8 {
+  margin-bottom: 3rem !important;
+}
+
+/* Generous spacing for titles */
+
+.mt-2 {
+  margin-top: 0.5rem !important;
+}
+
+.mt-4 {
+  margin-top: 1rem !important;
+}
+
+.hidden {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .md\:block {
+    display: block !important;
+  }
+
+  .md\:hidden {
+    display: none !important;
+  }
+}
+
+/* ===== Auth Layout Global Styles (Prevent FOUC) ===== */
+.split-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+  background-color: #6B21A8;
+  /* Fallback color */
+  background-image: url('/assets/img/pexels-karola-g-4386442.webp');
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  color: white;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(107, 33, 168, 0.9) 0%, rgba(59, 7, 100, 0.85) 100%);
+  z-index: 1;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  border-left: 2px solid white;
+  max-width: 500px;
+  padding-left: 2rem;
+}
+
+.hero-content h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.hero-content p {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+.logo-box-hero {
+  width: 64px;
+  height: 64px;
+  background: white;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.logo-box-hero i {
+  font-size: 2rem;
+  color: #6B21A8;
+}
+
+/* Form Section */
+.form-section {
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.form-container {
+  width: 100%;
+  max-width: 420px;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Responsive Auth */
+@media (max-width: 960px) {
+  .split-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-section {
+    display: none;
+  }
+}
+
+/* ===== Auth Input Global Styles (Prevent FOUC) ===== */
+.p-inputtext,
+.auth-form input,
+.auth-form .p-inputtext {
+  padding: 0.8rem 1rem !important;
+  border-radius: 12px !important;
+  border: 1px solid #e5e7eb !important;
+  font-size: 1rem !important;
+  transition: all 0.2s !important;
+  width: 100%;
+  box-sizing: border-box;
+  /* Ensure padding doesn't overflow width */
+}
+
+.p-inputtext:focus {
+  border-color: #6B21A8 !important;
+  box-shadow: 0 0 0 4px rgba(107, 33, 168, 0.1) !important;
+}
+
+.p-input-icon-left>i {
+  left: 0.75rem !important;
+  color: #9ca3af !important;
+}
+
+.p-password input {
+  width: 100% !important;
+  padding-left: 2.5rem !important;
+  /* Adjusted for icon */
+}
+
+/* Wrapper fix for password toggle */
+.password-wrapper .p-inputtext {
+  padding-left: 1rem;
+}

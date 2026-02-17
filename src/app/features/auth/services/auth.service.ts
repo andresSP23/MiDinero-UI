@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { AuthenticationRequest, RegistrationRequest, AuthenticationResponse } from '../../../core/models/auth.model';
+import { AuthenticationRequest, RegistrationRequest, AuthenticationResponse, ForgotPasswordRequest, ResetPasswordRequest } from '../../../core/models/auth.model';
 import { UserResponse } from '../../../core/models/user.model';
 
 @Injectable({ providedIn: 'root' })
@@ -45,6 +45,14 @@ export class AuthService {
         return this.http.get<void>(`${this.apiUrl}/activate-account`, {
             params: { token }
         });
+    }
+
+    forgotPassword(request: ForgotPasswordRequest): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/forgot-password`, request);
+    }
+
+    resetPassword(request: ResetPasswordRequest): Observable<void> {
+        return this.http.post<void>(`${this.apiUrl}/reset-password`, request);
     }
 
     getMe(): Observable<UserResponse> {

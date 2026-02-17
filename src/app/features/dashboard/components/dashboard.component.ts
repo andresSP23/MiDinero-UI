@@ -117,7 +117,7 @@ import { forkJoin } from 'rxjs';
                  <ng-template #body let-item>
                    <tr class="mini-row">
                      <td class="desc-mm">{{ item.description }}</td>
-                     <td class="text-right text-brand-sec font-bold">-{{ item.total | currency:'USD':'symbol':'1.0-0' }}</td>
+                     <td class="text-right text-brand-sec font-bold">-{{ item.total | currency:'USD':'symbol':'1.2-2' }}</td>
                    </tr>
                  </ng-template>
                </p-table>
@@ -141,7 +141,7 @@ import { forkJoin } from 'rxjs';
                  <ng-template #body let-item>
                    <tr class="mini-row">
                      <td class="desc-mm">{{ item.description }}</td>
-                     <td class="text-right text-brand font-bold">+{{ item.total | currency:'USD':'symbol':'1.0-0' }}</td>
+                     <td class="text-right text-brand font-bold">+{{ item.total | currency:'USD':'symbol':'1.2-2' }}</td>
                    </tr>
                  </ng-template>
                </p-table>
