@@ -7,6 +7,7 @@ import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { ButtonModule } from 'primeng/button';
 import { Transaction, TransactionRequest } from '../../../core/models/transaction.model';
+import { TransactionType } from '../../../core/enums/transaction-type.enum';
 import { Category } from '../../../core/models/category.model';
 
 @Component({
@@ -154,7 +155,7 @@ export class TransactionDialogComponent implements OnChanges {
   @Input() visible = false;
   @Input() transaction: Transaction | null = null;
   @Input() categories: Category[] = [];
-  @Input() defaultType: 'INCOME' | 'EXPENSE' | null = null;
+  @Input() defaultType: TransactionType | null = null;
   @Output() visibleChange = new EventEmitter<boolean>();
   @Output() saved = new EventEmitter<TransactionRequest>();
 
@@ -163,8 +164,8 @@ export class TransactionDialogComponent implements OnChanges {
   saving = signal(false);
 
   typeOptions = [
-    { label: 'Ingreso', value: 'INCOME' },
-    { label: 'Gasto', value: 'EXPENSE' }
+    { label: 'Ingreso', value: TransactionType.INCOME },
+    { label: 'Gasto', value: TransactionType.EXPENSE }
   ];
 
   categoryOptions = signal<{ label: string; value: number }[]>([]);

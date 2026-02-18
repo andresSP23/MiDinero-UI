@@ -1,16 +1,23 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, ChangeDetectionStrategy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { ButtonModule } from 'primeng/button';
 import { AuthService } from '../services/auth.service';
 import { AuthenticationRequest } from '../../../core/models/auth.model';
 
+interface LoginForm {
+  email: FormControl<string>;
+  password: FormControl<string>;
+}
+
 @Component({
   selector: 'app-login',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -65,9 +72,9 @@ import { AuthenticationRequest } from '../../../core/models/auth.model';
                 formControlName="email" 
                 class="w-full" 
                 placeholder="ejemplo@correo.com" 
-                [ngClass]="{'ng-invalid ng-dirty': loginForm.get('email')?.touched && loginForm.get('email')?.invalid}"
+                [ngClass]="{'ng-invalid ng-dirty': loginForm.controls.email.touched && loginForm.controls.email.invalid}"
               />
-              @if (loginForm.get('email')?.touched && loginForm.get('email')?.hasError('required')) {
+              @if (loginForm.controls.email.touched && loginForm.controls.email.hasError('required')) {
                 <small class="error-msg">El correo es requerido</small>
               }
             </div>
@@ -86,10 +93,10 @@ import { AuthenticationRequest } from '../../../core/models/auth.model';
                   placeholder="••••••••"
                   styleClass="w-full"
                   inputStyleClass="w-full"
-                  [ngClass]="{'ng-invalid ng-dirty': loginForm.get('password')?.touched && loginForm.get('password')?.invalid}"
+                  [ngClass]="{'ng-invalid ng-dirty': loginForm.controls.password.touched && loginForm.controls.password.invalid}"
                 />
               </div>
-              @if (loginForm.get('password')?.touched && loginForm.get('password')?.hasError('required')) {
+              @if (loginForm.controls.password.touched && loginForm.controls.password.hasError('required')) {
                 <small class="error-msg">La contraseña es requerida</small>
               }
             </div>
@@ -221,33 +228,38 @@ import { AuthenticationRequest } from '../../../core/models/auth.model';
   `]
 })
 export class LoginComponent {
-  loginForm: FormGroup;
+  private fb = inject(FormBuilder);
+  private authService = inject(AuthService);
+  private router = inject(Router);
+
+  loginForm: FormGroup<LoginForm>;
   loading = signal(false);
   errorSignal = signal('');
 
-  constructor(
-    private fb: FormBuilder,
-    private authService: AuthService,
-    private router: Router
-  ) {
-    this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required]]
+  constructor() {
+    this.loginForm = this.fb.group<LoginForm>({
+      email: this.fb.nonNullable.control('', [Validators.required, Validators.email]),
+      password: this.fb.nonNullable.control('', [Validators.required])
     });
 
-    this.loginForm.valueChanges.subscribe(() => {
-      if (this.errorSignal()) this.errorSignal.set('');
-    });
+    this.loginForm.valueChanges
+      .pipe(takeUntilDestroyed())
+      .subscribe(() => {
+        if (this.errorSignal()) this.errorSignal.set('');
+      });
   }
 
   onSubmit(): void {
     if (this.loginForm.invalid) return;
 
     this.loading.set(true);
+    const { email, password } = this.loginForm.getRawValue();
+
     const request: AuthenticationRequest = {
-      email: this.loginForm.value.email,
-      password: this.loginForm.value.password
+      email,
+      password
     };
+
     this.authService.login(request).subscribe({
       next: () => {
         this.loading.set(false);

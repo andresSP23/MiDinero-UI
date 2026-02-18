@@ -170,6 +170,7 @@ import { forkJoin } from 'rxjs';
       gap: 1.25rem;
       border: 1px solid var(--p-surface-border);
       box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+      min-width: 0; /* Ensures grid item can shrink */
     }
 
     .icon-box-mm {
@@ -180,15 +181,16 @@ import { forkJoin } from 'rxjs';
       align-items: center;
       justify-content: center;
       font-size: 1.15rem;
+      flex-shrink: 0; /* Prevent icon box from shrinking */
     }
 
     .balance-box { background: #f5f3ff; color: #6B21A8; }
     .income-box { background: #faf5ff; color: #7e22ce; }
     .expense-box { background: #fafafa; color: #64748b; }
 
-    .info-mm { display: flex; flex-direction: column; gap: 0.1rem; }
-    .label-mm { font-size: 0.7rem; color: var(--p-text-muted-color); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
-    .value-mm { font-size: 1.5rem; font-weight: 800; color: var(--p-text-color); }
+    .info-mm { display: flex; flex-direction: column; gap: 0.1rem; overflow: hidden; /* Prevent text overflow */ }
+    .label-mm { font-size: 0.7rem; color: var(--p-text-muted-color); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .value-mm { font-size: 1.5rem; font-weight: 800; color: var(--p-text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .charts-grid-mm {
       display: grid;
@@ -202,6 +204,7 @@ import { forkJoin } from 'rxjs';
       padding: 1.75rem;
       box-shadow: 0 1px 3px rgba(0,0,0,0.04);
       border: 1px solid var(--p-surface-border);
+      min-width: 0; /* Ensures grid item can shrink */
     }
 
     .block-header-mm {

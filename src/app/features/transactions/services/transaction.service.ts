@@ -7,6 +7,7 @@ import {
     TransactionRequest,
     PageResponse
 } from '../../../core/models/transaction.model';
+import { TransactionType } from '../../../core/enums/transaction-type.enum';
 
 @Injectable({ providedIn: 'root' })
 export class TransactionService {
@@ -14,7 +15,7 @@ export class TransactionService {
 
     constructor(private http: HttpClient) { }
 
-    getAll(page: number = 0, size: number = 10, sort: string = 'createdAt,desc', type?: 'INCOME' | 'EXPENSE'): Observable<PageResponse<Transaction>> {
+    getAll(page: number = 0, size: number = 10, sort: string = 'createdAt,desc', type?: TransactionType): Observable<PageResponse<Transaction>> {
         let params = new HttpParams()
             .set('page', page)
             .set('size', size)
@@ -43,8 +44,8 @@ export class TransactionService {
         return this.http.delete<void>(`${this.apiUrl}/delete/${id}`);
     }
 
-    exportToExcel(type?: 'INCOME' | 'EXPENSE'): Observable<Blob> {
-        const endpoint = type === 'INCOME' ? 'export/incomes' : 'export/expenses';
+    exportToExcel(type?: TransactionType): Observable<Blob> {
+        const endpoint = type === TransactionType.INCOME ? 'export/incomes' : 'export/expenses';
         return this.http.get(`${environment.apiUrl}/dashboard/${endpoint}`, { responseType: 'blob' });
     }
 }

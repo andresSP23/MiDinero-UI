@@ -7,6 +7,7 @@ import { DashboardService } from '../../dashboard/services/dashboard.service';
 import { TransactionListComponent } from '../components/transaction-list.component';
 import { TransactionDialogComponent } from '../components/transaction-dialog.component';
 import { Transaction, TransactionRequest } from '../../../core/models/transaction.model';
+import { TransactionType } from '../../../core/enums/transaction-type.enum';
 import { TransactionService } from '../services/transaction.service';
 import { MessageService } from 'primeng/api';
 import { CategoryService } from '../../categories/services/category.service';
@@ -58,7 +59,7 @@ import { Category } from '../../../core/models/category.model';
           <h3><i class="pi pi-list" style="color: #6B21A8"></i> Listado de Gastos</h3>
         </div>
         <div class="block-content-mm">
-          <app-transaction-list filterType="EXPENSE" #list (dataChanged)="onDataChanged()" />
+          <app-transaction-list [filterType]="TransactionType.EXPENSE" #list (dataChanged)="onDataChanged()" />
         </div>
       </div>
 
@@ -66,7 +67,7 @@ import { Category } from '../../../core/models/category.model';
         [(visible)]="dialogVisible"
         [transaction]="selectedTransaction()"
         [categories]="categories()"
-        [defaultType]="'EXPENSE'"
+        [defaultType]="TransactionType.EXPENSE"
         (saved)="onSave($event)"
       />
     </div>
@@ -135,6 +136,7 @@ import { Category } from '../../../core/models/category.model';
   `]
 })
 export class ExpensePageComponent implements OnInit {
+  protected readonly TransactionType = TransactionType;
   dialogVisible = false;
   chartData = signal<any>(null);
   loadingChart = signal(true);

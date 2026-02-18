@@ -11,8 +11,10 @@ import { ConfirmationService, MessageService } from 'primeng/api';
 import { TransactionService } from '../services/transaction.service';
 import { CategoryService } from '../../categories/services/category.service';
 import { Transaction, TransactionRequest } from '../../../core/models/transaction.model';
+import { TransactionType } from '../../../core/enums/transaction-type.enum';
 import { Category } from '../../../core/models/category.model';
 import { TransactionDialogComponent } from './transaction-dialog.component';
+import { FileService } from '../../../core/services/file.service';
 
 @Component({
   selector: 'app-transaction-list',
@@ -35,8 +37,8 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
       @if (filterType()) {
         <div class="page-header-mm">
           <div class="title-group">
-            <h2>{{ filterType() === 'INCOME' ? 'Ingresos' : 'Gastos' }}</h2>
-            <p class="subtitle-mm">Gestión de tus {{ filterType() === 'INCOME' ? 'entradas' : 'salidas' }} de dinero</p>
+            <h2>{{ filterType() === TransactionType.INCOME ? 'Ingresos' : 'Gastos' }}</h2>
+            <p class="subtitle-mm">Gestión de tus {{ filterType() === TransactionType.INCOME ? 'entradas' : 'salidas' }} de dinero</p>
           </div>
           <div class="actions-group">
             <button class="action-btn-mm sec" (click)="exportToExcel()" [disabled]="exporting()">
@@ -83,12 +85,12 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
                 <span class="cat-pill">{{ tx.categoryName }}</span>
               </td>
               <td>
-                <span class="type-badge-mini" [class]="tx.transactionType === 'INCOME' ? 'income' : 'expense'">
-                  {{ tx.transactionType === 'INCOME' ? 'Entrada' : 'Salida' }}
+                <span class="type-badge-mini" [class]="tx.transactionType === TransactionType.INCOME ? 'income' : 'expense'">
+                  {{ tx.transactionType === TransactionType.INCOME ? 'Entrada' : 'Salida' }}
                 </span>
               </td>
-              <td class="monto-cell" [class]="tx.transactionType === 'INCOME' ? 'text-success' : 'text-danger'">
-                {{ tx.transactionType === 'INCOME' ? '+' : '-' }}{{ tx.total | currency:'USD':'symbol':'1.2-2' }}
+              <td class="monto-cell" [class]="tx.transactionType === TransactionType.INCOME ? 'text-success' : 'text-danger'">
+                {{ tx.transactionType === TransactionType.INCOME ? '+' : '-' }}{{ tx.total | currency:'USD':'symbol':'1.2-2' }}
               </td>
               <td class="actions-cell">
                 <button class="mini-icon-btn" (click)="editTransaction(tx)"><i class="pi pi-pencil"></i></button>
@@ -222,7 +224,8 @@ import { TransactionDialogComponent } from './transaction-dialog.component';
   `]
 })
 export class TransactionListComponent implements OnInit {
-  filterType = input<'INCOME' | 'EXPENSE' | null>(null);
+  filterType = input<TransactionType | null>(null);
+  protected readonly TransactionType = TransactionType;
   transactions = signal<Transaction[]>([]);
   totalRecords = signal(0);
   loading = signal(true);
@@ -237,6 +240,7 @@ export class TransactionListComponent implements OnInit {
 
   private transactionService = inject(TransactionService);
   private categoryService = inject(CategoryService);
+  private fileService = inject(FileService);
   private confirmationService = inject(ConfirmationService);
   private messageService = inject(MessageService);
   private route = inject(ActivatedRoute);
@@ -294,8 +298,6 @@ export class TransactionListComponent implements OnInit {
   }
 
   @Output() dataChanged = new EventEmitter<void>();
-
-  // ... (existing code)
 
   onSave(request: TransactionRequest): void {
     const selected = this.selectedTransaction();
@@ -355,16 +357,10 @@ export class TransactionListComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (blob) => {
-          const url = window.URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          a.href = url;
           const dateStr = new Date().toISOString().split('T')[0];
           const fileName = `Transacciones_${type || 'ALL'}_${dateStr}.xlsx`;
-          a.download = fileName;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          window.URL.revokeObjectURL(url);
+          this.fileService.downloadBlob(blob, fileName);
+
           this.exporting.set(false);
           this.messageService.add({ severity: 'success', summary: 'Exportación completada', detail: 'El archivo se ha descargado correctamente' });
         },

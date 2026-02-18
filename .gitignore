@@ -42,3 +42,14 @@ __screenshots__/
 # System files
 .DS_Store
 Thumbs.db
+
+# Logs and Debug
+*.log
+test-output*.txt
+ts-debug*.txt
+ts-error*.txt
+login-error.txt
+
+# Local Environment
+.env
+.env.local

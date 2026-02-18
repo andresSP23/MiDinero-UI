@@ -30,6 +30,7 @@ import { NavbarComponent } from './navbar.component';
       flex-direction: column;
       margin-left: 280px;
       transition: margin-left 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      min-width: 0; /* Critical for permitting shrinking in flex container */
     }
 
     .layout.sidebar-collapsed .layout-main {
@@ -37,9 +38,9 @@ import { NavbarComponent } from './navbar.component';
     }
 
     .layout-content {
-      height: 60px;
+      flex: 1; /* Allow content to grow/fill */
       margin: 0.75rem 1.5rem 0.25rem;
-      box-shadow: var(--p-shadow-premium);
+      /* removed fixed height constraint */
     }
 
     @media (max-width: 768px) {
