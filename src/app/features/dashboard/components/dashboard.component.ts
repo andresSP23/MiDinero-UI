@@ -101,10 +101,10 @@ import { forkJoin } from 'rxjs';
 
       <!-- Bottom Row Split -->
       <div class="btm-grid">
-        <div class="block-card-mm list-card">
+        <div class="mm-card list-card">
           <div class="block-header-mm">
             <h3><i class="pi pi-history" style="color: #6B21A8"></i> Gastos Recientes</h3>
-            <button class="more-btn" (click)="navigateTo('/expenses')">Detalles</button>
+            <button class="more-btn" (click)="navigateTo('/expenses')"><i class="pi pi-arrow-right" style="font-size: 0.6rem"></i> Detalles</button>
           </div>
           <div class="block-content-mm">
              @if (loadingRecent()) {
@@ -128,7 +128,7 @@ import { forkJoin } from 'rxjs';
         <div class="block-card-mm list-card">
           <div class="block-header-mm">
             <h3><i class="pi pi-history" style="color: #6B21A8"></i> Ingresos Recientes</h3>
-            <button class="more-btn" (click)="navigateTo('/income')">Detalles</button>
+            <button class="more-btn" (click)="navigateTo('/income')"><i class="pi pi-arrow-right" style="font-size: 0.6rem"></i> Detalles</button>
           </div>
           <div class="block-content-mm">
              @if (loadingRecent()) {
@@ -163,14 +163,21 @@ import { forkJoin } from 'rxjs';
 
     .summary-card-mm {
       background: var(--p-surface-card);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 1.25rem 1.5rem;
       display: flex;
       align-items: center;
       gap: 1.25rem;
-      border: 1px solid var(--p-surface-border);
-      box-shadow: 0 1px 2px rgba(0,0,0,0.02);
-      min-width: 0; /* Ensures grid item can shrink */
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      min-width: 0;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .summary-card-mm:hover {
+      border-color: #d8b4fe;
+      box-shadow: 0 8px 24px rgba(107, 33, 168, 0.08);
+      transform: translateY(-2px);
     }
 
     .icon-box-mm {
@@ -184,9 +191,9 @@ import { forkJoin } from 'rxjs';
       flex-shrink: 0; /* Prevent icon box from shrinking */
     }
 
-    .balance-box { background: #f5f3ff; color: #6B21A8; }
-    .income-box { background: #faf5ff; color: #7e22ce; }
-    .expense-box { background: #fafafa; color: #64748b; }
+    .balance-box { background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: #6B21A8; }
+    .income-box { background: linear-gradient(135deg, #faf5ff, #f3e8ff); color: #7e22ce; }
+    .expense-box { background: linear-gradient(135deg, #fafaf9, #f5f5f4); color: #57534e; }
 
     .info-mm { display: flex; flex-direction: column; gap: 0.1rem; overflow: hidden; /* Prevent text overflow */ }
     .label-mm { font-size: 0.7rem; color: var(--p-text-muted-color); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -202,9 +209,14 @@ import { forkJoin } from 'rxjs';
       background: var(--p-surface-card);
       border-radius: 28px;
       padding: 1.75rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
-      border: 1px solid var(--p-surface-border);
-      min-width: 0; /* Ensures grid item can shrink */
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+      min-width: 0;
+      transition: border-color 0.25s ease;
+    }
+    
+    .block-card-mm:hover {
+       border-color: #d8b4fe;
     }
 
     .block-header-mm {
@@ -212,8 +224,10 @@ import { forkJoin } from 'rxjs';
       justify-content: space-between;
       align-items: center;
       margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f1eeec;
     }
-    .block-header-mm h3 { font-size: 0.95rem; font-weight: 800; color: var(--p-text-color); margin: 0; display: flex; align-items: center; gap: 0.6rem; }
+    .block-header-mm h3 { font-size: 0.95rem; font-weight: 800; color: var(--p-text-color); margin: 0; display: flex; align-items: center; gap: 0.6rem; letter-spacing: -0.01em; }
 
     .chart-container-mm { width: 100%; height: 280px; }
 
@@ -246,17 +260,20 @@ import { forkJoin } from 'rxjs';
     }
 
     .more-btn {
-      background: var(--p-surface-ground);
-      border: 1px solid var(--p-surface-border);
-      padding: 0.3rem 0.75rem;
-      border-radius: 8px;
+      background: #faf5ff;
+      border: 1px solid #e9d5ff;
+      padding: 0.35rem 0.85rem;
+      border-radius: 100px;
       font-size: 0.65rem;
       font-weight: 700;
-      color: var(--p-text-muted-color);
+      color: #6B21A8;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
     }
-    .more-btn:hover { background: var(--p-surface-border); color: var(--p-text-color); }
+    .more-btn:hover { background: #f3e8ff; border-color: #d8b4fe; transform: translateX(2px); }
 
     .mm-empty-small { height: 160px; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 0.85rem; }
 

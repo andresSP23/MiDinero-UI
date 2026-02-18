@@ -135,13 +135,14 @@ interface LoginForm {
     .field {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.6rem;
     }
 
     .field label {
-      font-weight: 600;
-      font-size: 0.9rem;
-      color: #374151;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: #44403c;
+      letter-spacing: 0.01em;
     }
 
     .label-with-icon {
@@ -151,63 +152,71 @@ interface LoginForm {
     }
     .label-with-icon i {
       color: #6B21A8;
+      font-size: 0.9rem;
     }
 
     /* PrimeNG Customization (Moved to styles.css) */
     
     .btn-primary-custom {
-      background: #6B21A8 !important;
+      background: linear-gradient(135deg, #7c3aed, #6B21A8) !important;
       border: none !important;
-      border-radius: 12px !important;
+      border-radius: 14px !important;
       padding: 1rem !important;
       font-weight: 700 !important;
       font-size: 1rem !important;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 0 4px 14px rgba(107, 33, 168, 0.25) !important;
     }
 
     .btn-primary-custom:hover {
-      background: #581c87 !important;
-      transform: translateY(-1px);
+      background: linear-gradient(135deg, #6d28d9, #581c87) !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(107, 33, 168, 0.35) !important;
     }
 
     .forgot-link {
       color: #6B21A8;
-      font-size: 0.9rem;
-      font-weight: 600;
+      font-size: 0.85rem;
+      font-weight: 700;
       text-decoration: none;
+      transition: color 0.2s;
     }
-    .forgot-link:hover { text-decoration: underline; }
+    .forgot-link:hover { color: #581c87; text-decoration: underline; }
 
     .footer-cta {
-      margin-top: 2rem;
+      margin-top: 2.5rem;
       text-align: center;
-      color: #6b7280;
-      font-size: 0.95rem;
+      color: #78716c;
+      font-size: 0.9rem;
+      padding-top: 2rem;
+      border-top: 1px solid #f1eeec;
     }
     .footer-cta a {
       color: #6B21A8;
       font-weight: 700;
       text-decoration: none;
+      transition: color 0.2s;
     }
-    .footer-cta a:hover { text-decoration: underline; }
+    .footer-cta a:hover { color: #581c87; text-decoration: underline; }
 
     .error-banner {
       background: #fef2f2;
-      border: 1px solid #fee2e2;
+      border: 1px solid #fecaca;
       color: #991b1b;
-      padding: 1rem;
-      border-radius: 12px;
-      margin-bottom: 2rem;
+      padding: 1rem 1.25rem;
+      border-radius: 14px;
+      margin-bottom: 1.5rem;
       display: flex;
       align-items: center;
       gap: 0.8rem;
       font-size: 0.9rem;
-      font-weight: 500;
+      font-weight: 600;
     }
 
     .error-msg {
       color: #ef4444;
-      font-size: 0.8rem;
-      font-weight: 500;
+      font-size: 0.78rem;
+      font-weight: 600;
     }
     
     .mobile-header { display: none; }

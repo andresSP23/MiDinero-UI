@@ -1,59 +1,101 @@
-# MiDineroUI
+# 💰 MiDinero UI
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.1.0.
+**MiDinero UI** es la interfaz frontend moderna y responsiva para el sistema de gestión de finanzas personales "MiDinero". Construido con las últimas tecnologías de Angular, ofrece una experiencia de usuario fluida para el seguimiento de ingresos, gastos y ahorros.
 
-## Development server
+![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![Angular](https://img.shields.io/badge/Angular-18-red.svg)
+![PrimeNG](https://img.shields.io/badge/PrimeNG-17-green.svg)
 
-To start a local development server, run:
+## 🚀 Características Principales
 
-```bash
-ng serve
+*   **Dashboard Interactivo:** Visualización en tiempo real de balance, ingresos y gastos con gráficos dinámicos (Charts.js).
+*   **Gestión de Transacciones:**
+    *   Listados completos de Ingresos y Gastos con filtrado y paginación.
+    *   Creación, Edición y Eliminación de transacciones.
+    *   **Exportación a Excel** integrada.
+*   **Autenticación Segura:**
+    *   Login y Registro con validaciones robustas.
+    *   Recuperación de contraseña (Forgot/Reset Password).
+    *   Manejo de tokens JWT y expiración de sesión.
+*   **Diseño Responsivo (Mobile-First):**
+    *   **Desktop:** Sidebar lateral colapsable.
+    *   **Mobile:** Barra de navegación inferior (estilo app nativa) para fácil acceso.
+*   **Modo Oscuro:** Soporte nativo para cambio de tema (Light/Dark).
+
+## 🛠️ Tecnologías
+
+*   **Framework:** [Angular 21](https://angular.dev/) (Standalone Components, Signals).
+*   **UI Component Library:** [PrimeNG 21](https://primeng.org/) (Tablas, Diálogos, Gráficos).
+*   **Estilos:** CSS moderno con variables CSS y Flexbox/Grid.
+*   **Gráficos:** Chart.js & ng2-charts.
+*   **Testing:** [Vitest](https://vitest.dev/) (Unit Testing).
+*   **Build Tool:** Angular CLI / Vite.
+
+## 📦 Instalación y Ejecución
+
+### Prerrequisitos
+*   Node.js (v18 o superior)
+*   NPM (v9 o superior)
+*   Backend "MiDinero" en ejecución (por defecto en `http://localhost:8080`).
+
+### Pasos
+
+1.  **Clonar el repositorio:**
+    ```bash
+    git clone https://github.com/tu-usuario/midinero-ui.git
+    cd midinero-ui
+    ```
+
+2.  **Instalar dependencias:**
+    ```bash
+    npm install
+    ```
+
+3.  **Configurar Variables de Entorno (Opcional):**
+    Si tu backend no está en `localhost:8080`, edita `src/environments/environment.ts`.
+
+4.  **Ejecutar en Desarrollo:**
+    ```bash
+    ng serve
+    ```
+    Abre tu navegador en `http://localhost:4200/`.
+
+## 🧪 Testing
+
+El proyecto utiliza **Vitest** para pruebas unitarias rápidas y eficientes.
+
+*   **Ejecutar Tests:**
+    ```bash
+    npm test
+    # o
+    ng test
+    ```
+*   **Cobertura:**
+    El proyecto cuenta con configuración para coverage (ver `vite.config.ts`).
+
+## 📂 Estructura del Proyecto
+
+```
+src/app/
+├── core/               # Modelos, Guards, Interceptores y Servicios Globales
+├── features/           # Módulos funcionales (Auth, Dashboard, Transactions, Categories)
+├── layout/             # Componentes estructurales (Sidebar, Navbar, Layout)
+└── shared/             # Componentes y Pipes reutilizables
 ```
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## 🔒 Seguridad
 
-## Code scaffolding
+*   Protección contra **XSS** mediante sanitización de Angular.
+*   Manejo seguro de rutas con **Guards** (`auth.guard.ts`).
+*   Interceptor HTTP para inyección automática de Tokens JWT.
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+## 🤝 Contribución
 
-```bash
-ng generate component component-name
-```
+1.  Fork el proyecto.
+2.  Crea tu rama de feature (`git checkout -b feature/AmazingFeature`).
+3.  Commit tus cambios (`git commit -m 'Add some AmazingFeature'`).
+4.  Push a la rama (`git push origin feature/AmazingFeature`).
+5.  Abre un Pull Request.
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
-
-```bash
-ng generate --help
-```
-
-## Building
-
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
-
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+---
+Desarrollado por Andrés Serrano.

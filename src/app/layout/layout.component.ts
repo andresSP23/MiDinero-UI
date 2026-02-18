@@ -46,6 +46,7 @@ import { NavbarComponent } from './navbar.component';
     @media (max-width: 768px) {
       .layout-main, .layout.sidebar-collapsed .layout-main {
         margin-left: 0;
+        padding-bottom: 90px; /* Ensure content is not hidden behind bottom nav */
       }
     }
   `]

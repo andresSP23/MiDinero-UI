@@ -38,7 +38,7 @@ import { CategoryDialogComponent } from './category-dialog.component';
 
       <div class="cards-grid-mm" *ngIf="!loading()">
         @for (cat of categories(); track cat.id) {
-          <div class="cat-card-mm hover-shadow">
+          <div class="mm-card cat-card-mm">
             <div class="card-top-mm">
               <div class="icon-set-mm" [class]="cat.categoryType === 'INCOME' ? 'income' : 'expense'">
                 <i [class]="cat.categoryType === 'INCOME' ? 'pi pi-arrow-down-left' : 'pi pi-arrow-up-right'"></i>
@@ -65,7 +65,7 @@ import { CategoryDialogComponent } from './category-dialog.component';
       <!-- Loading State -->
       <div class="cards-grid-mm" *ngIf="loading()">
         @for (i of [1,2,3,4,5,6]; track i) {
-          <div class="cat-card-mm skeleton">
+          <div class="mm-card cat-card-mm skeleton">
             <p-skeleton width="48px" height="48px" borderRadius="12px" styleClass="mb-3" />
             <p-skeleton width="60%" height="1.2rem" styleClass="mb-2" />
             <p-skeleton width="90%" height="0.8rem" />
@@ -74,7 +74,7 @@ import { CategoryDialogComponent } from './category-dialog.component';
       </div>
 
       <!-- Empty State -->
-      <div class="empty-state-mm block-card-mm" *ngIf="!loading() && categories().length === 0">
+      <div class="empty-state-mm mm-card" *ngIf="!loading() && categories().length === 0">
         <div class="empty-icon-mm"><i class="pi pi-tags"></i></div>
         <h3>No hay categorías</h3>
         <p>Comienza creando una categoría para organizar tus transacciones.</p>
@@ -131,20 +131,16 @@ import { CategoryDialogComponent } from './category-dialog.component';
     }
 
     .cat-card-mm {
-      background: var(--p-surface-card);
-      border-radius: 20px;
-      padding: 1.5rem;
-      border: 1px solid var(--p-surface-border);
       display: flex;
       flex-direction: column;
       height: 200px;
-      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      border-radius: 24px;
     }
 
     .hover-shadow:hover {
-      transform: translateY(-4px);
+      /* mm-card handles hover now, but kept for specific override if needed or removed */
+      /* Extending mm-card hover if we want stronger shadow */
       box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-      border-color: #6B21A8;
     }
 
     .card-top-mm {
@@ -157,14 +153,19 @@ import { CategoryDialogComponent } from './category-dialog.component';
     .icon-set-mm {
       width: 44px;
       height: 44px;
-      border-radius: 12px;
+      border-radius: 14px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.1rem;
+      transition: transform 0.2s;
     }
-    .icon-set-mm.income { background: #f5f3ff; color: #6B21A8; }
-    .icon-set-mm.expense { background: #faf5ff; color: #8B5CF6; }
+    .icon-set-mm.income { background: linear-gradient(135deg, #f5f3ff, #ede9fe); color: #6B21A8; }
+    .icon-set-mm.expense { background: linear-gradient(135deg, #faf5ff, #f3e8ff); color: #8B5CF6; }
+
+    .cat-card-mm:hover .icon-set-mm {
+      transform: scale(1.08);
+    }
 
     .type-badge-mm {
       font-size: 0.65rem;
@@ -176,11 +177,11 @@ import { CategoryDialogComponent } from './category-dialog.component';
     .type-badge-mm.income { background: #f5f3ff; color: #6B21A8; border: 1px solid #ddd6fe; }
     .type-badge-mm.expense { background: #faf5ff; color: #8B5CF6; border: 1px solid #e9d5ff; }
 
-    .cat-name-mm { font-size: 1.1rem; font-weight: 800; color: var(--p-text-color); margin: 0 0 0.5rem; }
+    .cat-name-mm { font-size: 1.1rem; font-weight: 800; color: var(--p-text-color); margin: 0 0 0.5rem; letter-spacing: -0.01em; }
     .cat-desc-mm { 
       font-size: 0.85rem; 
       color: var(--p-text-muted-color); 
-      line-height: 1.5; 
+      line-height: 1.6; 
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
@@ -198,25 +199,25 @@ import { CategoryDialogComponent } from './category-dialog.component';
     .icon-btn-mm {
       width: 32px;
       height: 32px;
-      border-radius: 8px;
-      border: 1px solid var(--p-surface-border);
-      background: var(--p-surface-ground);
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #fafaf9;
       color: var(--p-text-muted-color);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .icon-btn-mm:hover { background: var(--p-surface-border); color: var(--p-text-color); border-color: var(--p-text-muted-color); }
-    .icon-btn-mm.delete:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+    .icon-btn-mm:hover { background: #f3e8ff; color: #6B21A8; border-color: #d8b4fe; transform: scale(1.08); }
+    .icon-btn-mm.delete:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 
     .empty-state-mm {
       text-align: center;
       padding: 4rem 2rem;
       background: var(--p-surface-card);
       border-radius: 24px;
-      border: 1px solid var(--p-surface-border);
+      border: 1px solid #e2e8f0;
       grid-column: 1 / -1;
     }
     .empty-icon-mm {
@@ -227,7 +228,7 @@ import { CategoryDialogComponent } from './category-dialog.component';
     .empty-state-mm h3 { color: var(--p-text-color); margin-bottom: 0.5rem; }
     .empty-state-mm p { color: var(--p-text-muted-color); font-size: 0.9rem; }
 
-    .block-card-mm { background: var(--p-surface-card); border-radius: 24px; padding: 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid var(--p-surface-border); }
+    /* block-card-mm replaced by mm-card */
     .mb-3 { margin-bottom: 0.75rem; }
     .mb-2 { margin-bottom: 0.5rem; }
   `]

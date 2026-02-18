@@ -90,14 +90,14 @@ import { Category } from '../../../core/models/category.model';
     .title-group h2 { font-size: 1.5rem; font-weight: 800; color: var(--p-text-color); margin: 0; }
 
     .badge-mm {
-      padding: 0.25rem 0.75rem;
+      padding: 0.3rem 0.85rem;
       border-radius: 100px;
-      font-size: 0.7rem;
-      font-weight: 700;
+      font-size: 0.65rem;
+      font-weight: 800;
       text-transform: uppercase;
-      letter-spacing: 0.025em;
+      letter-spacing: 0.04em;
     }
-    .badge-mm.danger { background: #fee2e2; color: #991b1b; }
+    .badge-mm.danger { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
 
     .action-btn-mm {
       border: none;
@@ -119,8 +119,13 @@ import { Category } from '../../../core/models/category.model';
       background: var(--p-surface-card);
       border-radius: 24px;
       padding: 2rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid var(--p-surface-border);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+      transition: border-color 0.25s ease;
+    }
+    
+    .block-card-mm:hover {
+      border-color: #d8b4fe;
     }
 
     .block-header-mm {
@@ -128,8 +133,10 @@ import { Category } from '../../../core/models/category.model';
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #f1eeec;
     }
-    .block-header-mm h3 { font-size: 1.1rem; font-weight: 800; color: var(--p-text-color); margin: 0; display: flex; align-items: center; gap: 0.75rem; }
+    .block-header-mm h3 { font-size: 1.1rem; font-weight: 800; color: var(--p-text-color); margin: 0; display: flex; align-items: center; gap: 0.75rem; letter-spacing: -0.01em; }
 
     .chart-wrapper { width: 100%; height: 300px; }
     .mb-4 { margin-bottom: 1.5rem; }

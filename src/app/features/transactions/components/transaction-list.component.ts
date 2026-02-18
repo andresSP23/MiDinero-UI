@@ -52,7 +52,7 @@ import { FileService } from '../../../core/services/file.service';
         </div>
       }
 
-      <div class="block-card-mm table-card-mm">
+      <div class="mm-card table-card-mm">
         <p-table
           [value]="transactions()"
           [lazy]="true"
@@ -142,6 +142,25 @@ import { FileService } from '../../../core/services/file.service';
       justify-content: space-between;
       align-items: center;
       margin-bottom: 2rem;
+      flex-wrap: wrap; /* Allow wrapping */
+      gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+      .page-header-mm {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      
+      .actions-group {
+        width: 100%;
+        justify-content: space-between;
+      }
+      
+      .action-btn-mm {
+        flex: 1;
+        justify-content: center;
+      }
     }
  
     .actions-group { display: flex; gap: 0.75rem; }
@@ -167,23 +186,19 @@ import { FileService } from '../../../core/services/file.service';
     .action-btn-mm.sec:hover { background: var(--p-surface-ground); border-color: var(--p-text-muted-color); }
     .action-btn-mm:hover { transform: translateY(-1px); }
 
-    .block-card-mm {
-      background: var(--p-surface-card);
-      border-radius: 20px;
-      padding: 1.5rem;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      border: 1px solid var(--p-surface-border);
+    .table-card-mm { 
+        padding: 0.5rem; 
+        overflow-x: auto;
     }
 
-    .table-card-mm { padding: 0.5rem; }
-
     .cat-pill {
-      background: #f3e8ff;
+      background: linear-gradient(135deg, #f3e8ff, #faf5ff);
       color: #6b21a8;
-      padding: 0.25rem 0.6rem;
-      border-radius: 8px;
+      padding: 0.3rem 0.75rem;
+      border-radius: 100px;
       font-size: 0.75rem;
       font-weight: 700;
+      border: 1px solid #e9d5ff;
     }
 
     .type-badge-mini {
@@ -195,27 +210,27 @@ import { FileService } from '../../../core/services/file.service';
     .type-badge-mini.income { background: #d1fae5; color: #065f46; }
     .type-badge-mini.expense { background: #fee2e2; color: #991b1b; }
 
-    .monto-cell { font-weight: 800; text-align: right; }
+    .monto-cell { font-weight: 800; text-align: right; font-size: 0.95rem; }
     .text-success { color: #6B21A8; }
     .text-danger { color: #8B5CF6; }
 
     .actions-cell { display: flex; justify-content: center; gap: 0.5rem; }
 
     .mini-icon-btn {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      border: 1px solid var(--p-surface-border);
-      background: var(--p-surface-ground);
+      width: 30px;
+      height: 30px;
+      border-radius: 10px;
+      border: 1px solid #e2e8f0;
+      background: #fafaf9;
       color: var(--p-text-muted-color);
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     }
-    .mini-icon-btn:hover { background: var(--p-surface-border); color: var(--p-text-color); }
-    .mini-icon-btn.delete:hover { background: #fee2e2; color: #dc2626; border-color: #fecaca; }
+    .mini-icon-btn:hover { background: #f3e8ff; color: #6B21A8; border-color: #d8b4fe; transform: scale(1.05); }
+    .mini-icon-btn.delete:hover { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
 
     .mm-empty-row { text-align: center; padding: 3rem !important; color: #94a3b8; font-style: italic; }
 

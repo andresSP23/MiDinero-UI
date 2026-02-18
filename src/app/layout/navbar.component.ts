@@ -33,13 +33,13 @@ import { FormsModule } from '@angular/forms';
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 1.25rem;
+      padding: 0 1.5rem;
       background: var(--p-surface-card);
-      border: 1px solid var(--p-surface-border);
+      border: 1px solid #e2e8f0;
       border-radius: 20px;
-      height: 60px;
+      height: 64px;
       margin: 0.75rem 1.5rem 0.25rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
     }
 
     .navbar-left {
@@ -63,6 +63,17 @@ import { FormsModule } from '@angular/forms';
     .theme-toggle i {
       font-size: 1rem;
       color: var(--p-text-muted-color);
+      transition: color 0.2s, transform 0.2s;
+    }
+
+    .theme-toggle i:first-child:hover {
+      color: #f59e0b;
+      transform: rotate(15deg);
+    }
+
+    .theme-toggle i:last-child:hover {
+      color: #6366f1;
+      transform: rotate(-15deg);
     }
   `]
 })
