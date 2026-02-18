@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, input, inject, DestroyRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, OnInit, signal, input, inject, DestroyRef, ChangeDetectionStrategy, Output, EventEmitter } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
@@ -293,6 +293,10 @@ export class TransactionListComponent implements OnInit {
     this.dialogVisible = true;
   }
 
+  @Output() dataChanged = new EventEmitter<void>();
+
+  // ... (existing code)
+
   onSave(request: TransactionRequest): void {
     const selected = this.selectedTransaction();
     const obs = selected
@@ -310,6 +314,7 @@ export class TransactionListComponent implements OnInit {
             life: 3000
           });
           this.loadTransactions({ first: 0, rows: this.pageSize });
+          this.dataChanged.emit(); // Notify parent
         }
       });
   }
@@ -335,6 +340,7 @@ export class TransactionListComponent implements OnInit {
                 life: 3000
               });
               this.loadTransactions({ first: 0, rows: this.pageSize });
+              this.dataChanged.emit(); // Notify parent
             }
           });
       }

@@ -61,7 +61,7 @@ import { Category } from '../../../core/models/category.model';
           <h3><i class="pi pi-list" style="color: #6B21A8"></i> Listado de Ingresos</h3>
         </div>
         <div class="block-content-mm">
-          <app-transaction-list filterType="INCOME" #list />
+          <app-transaction-list filterType="INCOME" #list (dataChanged)="onDataChanged()" />
         </div>
       </div>
 
@@ -224,6 +224,10 @@ export class IncomePageComponent implements OnInit {
 
   openDialog() {
     this.dialogVisible = true;
+  }
+
+  onDataChanged() {
+    this.loadChart();
   }
 
   onSave(request: TransactionRequest) {

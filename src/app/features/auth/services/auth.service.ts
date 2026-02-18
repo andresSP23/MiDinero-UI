@@ -1,7 +1,7 @@
 import { Injectable, signal, computed, Injector } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, Subject } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { AuthenticationRequest, RegistrationRequest, AuthenticationResponse, ForgotPasswordRequest, ResetPasswordRequest } from '../../../core/models/auth.model';
 import { UserResponse } from '../../../core/models/user.model';
@@ -15,6 +15,10 @@ export class AuthService {
     currentUser = signal<UserResponse | null>(null);
 
     private readonly _isAuthenticated = signal(this.hasValidToken());
+
+    // Subject to notify about session expiration without circular dependency
+    private readonly sessionExpiredSubject = new Subject<void>();
+    public readonly sessionExpired$ = this.sessionExpiredSubject.asObservable();
 
     readonly isAuthenticated = this._isAuthenticated.asReadonly();
 
@@ -71,6 +75,10 @@ export class AuthService {
 
     getToken(): string | null {
         return localStorage.getItem(this.tokenKey);
+    }
+
+    notifySessionExpired(): void {
+        this.sessionExpiredSubject.next();
     }
 
     private hasValidToken(): boolean {

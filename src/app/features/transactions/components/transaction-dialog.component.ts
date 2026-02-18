@@ -96,15 +96,18 @@ import { Category } from '../../../core/models/category.model';
 
       <ng-template #footer>
         <div class="mm-dialog-footer">
-          <button class="btn-mm-sec" (click)="onCancel()">Cancelar</button>
-          <button 
-            class="btn-mm-pri" 
-            [class.loading]="saving()"
+          <p-button 
+            label="Cancelar" 
+            styleClass="btn-mm-sec" 
+            (onClick)="onCancel()" 
+          />
+          <p-button 
+            [label]="transaction ? 'Guardar Cambios' : 'Registrar Ahora'"
+            styleClass="btn-mm-pri" 
+            [loading]="saving()"
             [disabled]="form.invalid || saving()" 
-            (click)="onSave()"
-          >
-            {{ transaction ? 'Guardar Cambios' : 'Registrar Ahora' }}
-          </button>
+            (onClick)="onSave()"
+          />
         </div>
       </ng-template>
     </p-dialog>
@@ -118,6 +121,33 @@ import { Category } from '../../../core/models/category.model';
     .form-field-mm label { font-size: 0.8rem; font-weight: 700; color: #1e293b; }
 
     .mm-dialog-footer { display: flex; gap: 0.75rem; width: 100%; }
+
+    :host ::ng-deep .p-button.btn-mm-pri {
+      background: #6B21A8; 
+      color: white; 
+      border: none;
+      width: 100%;
+      justify-content: center;
+      padding: 0.75rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    :host ::ng-deep .p-button.btn-mm-pri:enabled:hover { background: #581c87; transform: translateY(-1px); }
+    :host ::ng-deep .p-button.btn-mm-pri:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    :host ::ng-deep .p-button.btn-mm-sec { 
+      background: #f1f5f9; 
+      color: #475569; 
+      border: none;
+      width: 100%;
+      justify-content: center;
+      padding: 0.75rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    :host ::ng-deep .p-button.btn-mm-sec:enabled:hover { background: #e2e8f0; color: #334155; }
   `]
 })
 export class TransactionDialogComponent implements OnChanges {

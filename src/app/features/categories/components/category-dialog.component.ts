@@ -73,15 +73,18 @@ import { Category, CategoryRequest } from '../../../core/models/category.model';
 
       <ng-template #footer>
         <div class="mm-dialog-footer">
-          <button class="btn-mm-sec" (click)="onCancel()">Cancelar</button>
-          <button 
-            class="btn-mm-pri" 
-            [class.loading]="saving()"
+          <p-button 
+            label="Cancelar" 
+            styleClass="btn-mm-sec" 
+            (onClick)="onCancel()" 
+          />
+          <p-button 
+            [label]="category ? 'Guardar Cambios' : 'Crear Categoría'"
+            styleClass="btn-mm-pri" 
+            [loading]="saving()"
             [disabled]="form.invalid || saving()" 
-            (click)="onSave()"
-          >
-            {{ category ? 'Guardar Cambios' : 'Crear Categoría' }}
-          </button>
+            (onClick)="onSave()"
+          />
         </div>
       </ng-template>
     </p-dialog>
@@ -131,23 +134,32 @@ import { Category, CategoryRequest } from '../../../core/models/category.model';
 
     .mm-dialog-footer { display: flex; gap: 0.75rem; width: 100%; }
 
-    .btn-mm-pri, .btn-mm-sec {
-      flex: 1;
+    :host ::ng-deep .p-button.btn-mm-pri {
+      background: #6B21A8; 
+      color: white; 
+      border: none;
+      width: 100%;
+      justify-content: center;
       padding: 0.75rem;
       border-radius: 12px;
       font-weight: 700;
       font-size: 0.9rem;
-      cursor: pointer;
-      transition: all 0.2s;
-      border: none;
     }
+    :host ::ng-deep .p-button.btn-mm-pri:enabled:hover { background: #581c87; transform: translateY(-1px); }
+    :host ::ng-deep .p-button.btn-mm-pri:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .btn-mm-pri { background: #6B21A8; color: white; }
-    .btn-mm-pri:hover:not(:disabled) { background: #581c87; transform: translateY(-1px); }
-    .btn-mm-pri:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .btn-mm-sec { background: #f1f5f9; color: #475569; }
-    .btn-mm-sec:hover { background: #e2e8f0; }
+    :host ::ng-deep .p-button.btn-mm-sec { 
+      background: #f1f5f9; 
+      color: #475569; 
+      border: none;
+      width: 100%;
+      justify-content: center;
+      padding: 0.75rem;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.9rem;
+    }
+    :host ::ng-deep .p-button.btn-mm-sec:enabled:hover { background: #e2e8f0; color: #334155; }
   `]
 })
 export class CategoryDialogComponent implements OnChanges {

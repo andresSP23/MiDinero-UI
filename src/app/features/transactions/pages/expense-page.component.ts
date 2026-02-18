@@ -1,4 +1,4 @@
-import { Component, OnInit, signal, inject } from '@angular/core';
+import { Component, OnInit, signal, inject, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartModule } from 'primeng/chart';
 import { SkeletonModule } from 'primeng/skeleton';
@@ -58,7 +58,7 @@ import { Category } from '../../../core/models/category.model';
           <h3><i class="pi pi-list" style="color: #6B21A8"></i> Listado de Gastos</h3>
         </div>
         <div class="block-content-mm">
-          <app-transaction-list filterType="EXPENSE" #list />
+          <app-transaction-list filterType="EXPENSE" #list (dataChanged)="onDataChanged()" />
         </div>
       </div>
 
@@ -169,6 +169,8 @@ export class ExpensePageComponent implements OnInit {
   private categoryService = inject(CategoryService);
   private messageService = inject(MessageService);
 
+  @ViewChild('list') list!: TransactionListComponent;
+
   ngOnInit() {
     this.loadChart();
     this.loadCategories();
@@ -216,6 +218,11 @@ export class ExpensePageComponent implements OnInit {
     this.dialogVisible = true;
   }
 
+  onDataChanged() {
+    // Reload the chart to reflect changes
+    this.loadChart();
+  }
+
   onSave(request: TransactionRequest) {
     this.transactionService.create(request).subscribe({
       next: () => {
@@ -226,8 +233,11 @@ export class ExpensePageComponent implements OnInit {
           detail: 'Gasto registrado correctamente',
           life: 3000
         });
+
+        // When saving from the page-level dialog, we need to explicitly refresh the list
+        // and the chart.
+        this.list.refresh();
         this.loadChart();
-        window.location.reload();
       }
     });
   }

@@ -1,6 +1,7 @@
 import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { inject, Injector } from '@angular/core';
 import { Router } from '@angular/router';
+import { AuthService } from '../services/auth.service';
 import { catchError, throwError } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { ApiErrorResponse } from '../../../core/models/api-error.model';
@@ -8,6 +9,7 @@ import { ApiErrorResponse } from '../../../core/models/api-error.model';
 export const errorInterceptor: HttpInterceptorFn = (req, next) => {
     const router = inject(Router);
     const messageService = inject(MessageService);
+    const injector = inject(Injector); // Inject Injector instead of AuthService directly
 
     return next(req).pipe(
         catchError(error => {
@@ -20,14 +22,26 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
                     if (req.url.includes('/auth/authenticate') || req.url.includes('/auth/register')) {
                         message = apiError?.error || 'Credenciales incorrectas. Verifique e intente de nuevo.';
                     } else {
-                        message = 'Sesión expirada. Por favor inicie sesión nuevamente.';
-                        localStorage.removeItem('token');
-                        router.navigate(['/login']);
+                        // Lazily get AuthService to avoid circular dependency
+                        const authService = injector.get(AuthService);
+                        authService.notifySessionExpired();
+                        return throwError(() => error);
                     }
                     break;
-                case 403:
-                    message = 'No tiene permisos para realizar esta acción.';
+                case 403: {
+                    // message = 'No tiene permisos para realizar esta acción.';
+                    // If the backend returns 403 for expired tokens, we should treat it as session expired.
+
+                    // BUT: If it's an auth endpoint (like login/register), it might mean "Account not activated" or "Forbidden"
+                    if (req.url.includes('/auth/authenticate') || req.url.includes('/auth/register') || req.url.includes('/auth/activate-account')) {
+                        message = apiError?.error || 'No tiene permisos para realizar esta acción.';
+                    } else {
+                        const authService = injector.get(AuthService);
+                        authService.notifySessionExpired();
+                        return throwError(() => error);
+                    }
                     break;
+                }
                 case 404:
                     message = 'El recurso solicitado no fue encontrado.';
                     break;
