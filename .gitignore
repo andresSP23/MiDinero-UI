@@ -50,6 +50,13 @@ ts-debug*.txt
 ts-error*.txt
 login-error.txt
 
+# AI/Tool specific
+.gemini/
+.antigravityignore
+mcp-*.json
+mcp.json
+
 # Local Environment
 .env
 .env.local
+.env.*
