@@ -26,7 +26,7 @@ import { CategoryDialogComponent } from './category-dialog.component';
   template: `
     <div class="page-container-mm">
       <!-- Header Row -->
-      <div class="page-header-mm">
+      <div class="page-header-mm anim-fade-in-up anim-delay-1">
         <div class="title-group">
           <h2>Categorías</h2>
           <p class="subtitle-mm">Gestiona tus etiquetas de ingresos y gastos</p>
@@ -38,7 +38,7 @@ import { CategoryDialogComponent } from './category-dialog.component';
 
       <div class="cards-grid-mm" *ngIf="!loading()">
         @for (cat of categories(); track cat.id) {
-          <div class="mm-card cat-card-mm">
+          <div class="mm-card cat-card-mm anim-scale-in" [style.animation-delay]="(($index) * 0.06) + 's'">
             <div class="card-top-mm">
               <div class="icon-set-mm" [class]="cat.categoryType === 'INCOME' ? 'income' : 'expense'">
                 <i [class]="cat.categoryType === 'INCOME' ? 'pi pi-arrow-down-left' : 'pi pi-arrow-up-right'"></i>

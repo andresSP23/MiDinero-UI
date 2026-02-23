@@ -95,6 +95,139 @@ a:hover {
   text-decoration: underline;
 }
 
+/* ===== Global Animations ===== */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Utility classes */
+.anim-fade-in-up {
+  animation: fadeInUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-fade-in {
+  animation: fadeIn 0.4s ease both;
+}
+
+.anim-slide-in {
+  animation: slideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.anim-scale-in {
+  animation: scaleIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Stagger delays */
+.anim-delay-1 {
+  animation-delay: 0.05s;
+}
+
+.anim-delay-2 {
+  animation-delay: 0.1s;
+}
+
+.anim-delay-3 {
+  animation-delay: 0.15s;
+}
+
+.anim-delay-4 {
+  animation-delay: 0.2s;
+}
+
+.anim-delay-5 {
+  animation-delay: 0.25s;
+}
+
+.anim-delay-6 {
+  animation-delay: 0.3s;
+}
+
+/* Respect reduced motion */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ===== Button Press Micro-Interactions ===== */
+button,
+.action-btn-mm,
+.btn-primary-custom,
+.more-btn,
+.icon-btn-mm,
+.mini-icon-btn {
+  transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s, background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+button:active:not(:disabled),
+.action-btn-mm:active,
+.btn-primary-custom:active,
+.more-btn:active {
+  transform: scale(0.97) !important;
+}
+
+.icon-btn-mm:active,
+.mini-icon-btn:active {
+  transform: scale(0.92) !important;
+}
+
+
 /* ===== PrimeNG Overrides for polish ===== */
 
 /* Smooth table transitions */

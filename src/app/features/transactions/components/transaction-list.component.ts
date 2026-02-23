@@ -52,7 +52,7 @@ import { FileService } from '../../../core/services/file.service';
         </div>
       }
 
-      <div class="mm-card table-card-mm">
+      <div class="mm-card table-card-mm anim-fade-in-up anim-delay-3">
         <p-table
           [value]="transactions()"
           [lazy]="true"

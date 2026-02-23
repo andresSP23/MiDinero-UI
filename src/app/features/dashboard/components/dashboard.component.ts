@@ -25,7 +25,7 @@ import { forkJoin } from 'rxjs';
     <div class="dashboard-mm">
       <!-- Summary Row -->
       <div class="summary-grid">
-        <div class="summary-card-mm">
+        <div class="summary-card-mm anim-fade-in-up anim-delay-1">
           <div class="icon-box-mm balance-box">
             <i class="pi pi-wallet"></i>
           </div>
@@ -35,7 +35,7 @@ import { forkJoin } from 'rxjs';
           </div>
         </div>
 
-        <div class="summary-card-mm">
+        <div class="summary-card-mm anim-fade-in-up anim-delay-2">
           <div class="icon-box-mm income-box">
             <i class="pi pi-arrow-down-left"></i>
           </div>
@@ -45,7 +45,7 @@ import { forkJoin } from 'rxjs';
           </div>
         </div>
 
-        <div class="summary-card-mm">
+        <div class="summary-card-mm anim-fade-in-up anim-delay-3">
           <div class="icon-box-mm expense-box">
             <i class="pi pi-arrow-up-right"></i>
           </div>
@@ -57,7 +57,7 @@ import { forkJoin } from 'rxjs';
       </div>
 
       <!-- Charts Section (Modern Split) -->
-      <div class="charts-grid-mm mb-4">
+      <div class="charts-grid-mm mb-4 anim-fade-in-up anim-delay-4">
         <!-- Line Chart (Evolution) -->
         <div class="block-card-mm chart-card-mm">
           <div class="block-header-mm">
@@ -100,7 +100,7 @@ import { forkJoin } from 'rxjs';
       </div>
 
       <!-- Bottom Row Split -->
-      <div class="btm-grid">
+      <div class="btm-grid anim-fade-in-up anim-delay-5">
         <div class="mm-card list-card">
           <div class="block-header-mm">
             <h3><i class="pi pi-history" style="color: #6B21A8"></i> Gastos Recientes</h3>

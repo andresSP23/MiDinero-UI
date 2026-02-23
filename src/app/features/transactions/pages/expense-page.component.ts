@@ -27,7 +27,7 @@ import { Category } from '../../../core/models/category.model';
   template: `
     <div class="page-container-mm">
       <!-- Header Row -->
-      <div class="page-header-mm">
+      <div class="page-header-mm anim-fade-in-up anim-delay-1">
         <div class="title-group">
           <h2>Gastos</h2>
           <span class="badge-mm danger">Mensual</span>
@@ -38,7 +38,7 @@ import { Category } from '../../../core/models/category.model';
       </div>
 
       <!-- Analysis Card -->
-      <div class="block-card-mm mb-4">
+      <div class="block-card-mm mb-4 anim-fade-in-up anim-delay-2">
         <div class="block-header-mm">
           <h3><i class="pi pi-chart-bar" style="color: #dc2626"></i> Análisis de Gastos</h3>
         </div>
