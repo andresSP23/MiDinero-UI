@@ -128,7 +128,7 @@ import { forkJoin } from 'rxjs';
         <div class="block-card-mm list-card">
           <div class="block-header-mm">
             <h3><i class="pi pi-history" style="color: #6B21A8"></i> Ingresos Recientes</h3>
-            <button class="more-btn" (click)="navigateTo('/income')"><i class="pi pi-arrow-right" style="font-size: 0.6rem"></i> Detalles</button>
+            <button class="more-btn" (click)="navigateTo('/incomes')"><i class="pi pi-arrow-right" style="font-size: 0.6rem"></i> Detalles</button>
           </div>
           <div class="block-content-mm">
              @if (loadingRecent()) {
