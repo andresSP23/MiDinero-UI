@@ -38,10 +38,3 @@ jobs:
 
       - name: Deploy to S3
         run: aws s3 sync dist/MiDinero-UI/browser/ s3://${{ env.S3_BUCKET }} --delete
-
-      - name: Invalidate CloudFront cache
-        run: |
-          echo '{"Paths":{"Quantity":1,"Items":["/*"]},"CallerReference":"test123"}' > invalidation.json
-          aws cloudfront create-invalidation \
-            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-            --invalidation-batch file://invalidation.json   
