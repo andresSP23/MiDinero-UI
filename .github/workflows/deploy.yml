@@ -49,18 +49,19 @@ jobs:
       - name: Deploy to S3
         run: aws s3 sync dist/MiDinero-UI/browser/ s3://${{ env.S3_BUCKET }}
 
-      - name: Invalidate CloudFront cache
+       - name: Invalidate CloudFront cache
+        env:
+          DIST_ID: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
         run: |
           python3 -c "
-          import boto3
-          import time
-          client = boto3.client('cloudfront', region_name='us-east-2')
+          import boto3, time, os
+          client = boto3.client('cloudfront')
           client.create_invalidation(
-              DistributionId='${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}',
+              DistributionId=os.environ['DIST_ID'],
               InvalidationBatch={
                   'Paths': {'Quantity': 1, 'Items': ['/*']},
                   'CallerReference': str(time.time())
               }
           )
-          print('Invalidation created successfully')
+          print('Invalidation created')
           "
