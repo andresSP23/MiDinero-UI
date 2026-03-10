@@ -29,6 +29,13 @@ jobs:
       - name: Build Angular app
         run: npm run build
 
+      - name: Verify build output
+        run: |
+          echo "=== Archivos generados ==="
+          ls dist/MiDinero-UI/browser/
+          echo "=== Referencias en index.html ==="
+          cat dist/MiDinero-UI/browser/index.html | grep -o 'src="[^"]*"\|href="[^"]*\.js"'
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -36,5 +43,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Clear S3 bucket
+        run: aws s3 rm s3://${{ env.S3_BUCKET }} --recursive
+
       - name: Deploy to S3
-        run: aws s3 sync dist/MiDinero-UI/browser/ s3://${{ env.S3_BUCKET }} --delete
+        run: aws s3 sync dist/MiDinero-UI/browser/ s3://${{ env.S3_BUCKET }}
+
+      - name: Invalidate CloudFront cache
+        run: aws cloudfront create-invalidation --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} --paths "/*"
