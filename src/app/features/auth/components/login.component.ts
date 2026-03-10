@@ -45,7 +45,7 @@ interface LoginForm {
         <div class="form-container">
           <div class="mobile-header">
              <i class="pi pi-wallet text-3xl text-primary"></i>
-             <h2 class="text-2xl font-bold mt-2">MiDinero</h2>
+             <h2 class="text-2xl font-bold mt-2">MiDinero v.1.0.0</h2>
           </div>
 
           <div class="text-center mb-8 hidden md:block">
