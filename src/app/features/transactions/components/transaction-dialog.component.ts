@@ -27,7 +27,7 @@ import { Category } from '../../../core/models/category.model';
     <p-dialog
       [(visible)]="visible"
       [modal]="true"
-      [style]="{ width: '400px', borderRadius: '24px' }"
+      [style]="{ width: 'min(400px, 92vw)', borderRadius: '24px' }"
       [draggable]="false"
       [resizable]="false"
       [closable]="false"
@@ -76,6 +76,8 @@ import { Category } from '../../../core/models/category.model';
               formControlName="transactionType"
               [options]="typeOptions"
               placeholder="Seleccionar tipo"
+              appendTo="body"
+              [fluid]="true"
               styleClass="mm-select"
             />
           </div>
@@ -90,6 +92,8 @@ import { Category } from '../../../core/models/category.model';
             optionLabel="label"
             optionValue="value"
             placeholder="Seleccionar categoría"
+            appendTo="body"
+            [fluid]="true"
             styleClass="mm-select"
           />
         </div>

@@ -410,12 +410,30 @@ button:active:not(:disabled),
   background: #fafaf9;
   border: 1.5px solid #e7e5e4;
   border-radius: 14px;
-  padding: 0.25rem 0.5rem;
+  padding: 0.15rem 0.5rem;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
 }
 
 .mm-select:not(.p-disabled).p-focus {
   border-color: #6B21A8;
   box-shadow: 0 0 0 3px rgba(107, 33, 168, 0.08);
+}
+
+/* Ensure overlay is friendly on mobile */
+.p-select-overlay {
+  border-radius: 14px !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #f1f5f9 !important;
+  margin-top: 4px !important;
+}
+
+.p-select-option {
+  padding: 0.75rem 1rem !important;
+  font-size: 0.9rem !important;
+  border-radius: 8px !important;
+  margin: 2px 6px !important;
 }
 
 /* Dialog Header/Content Overrides */
